@@ -23,6 +23,14 @@ export default defineConfig({
         background_color: '#0f172a',
         display: 'standalone',
         start_url: base === './' ? '.' : base,
+        icons: [
+          {
+            src: base === './' ? 'icon.svg' : `${base.replace(/\/$/, '')}/icon.svg`,
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'any maskable',
+          },
+        ],
       },
     }),
   ],

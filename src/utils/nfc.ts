@@ -41,7 +41,13 @@ export function scanNfcTag(options?: { signal?: AbortSignal }): Promise<string> 
   interface NDEFReadingEventLike {
     serialNumber?: string
   }
-  const NDEFReader = (window as unknown as { NDEFReader: new () => { scan: (opts?: { signal?: AbortSignal }) => Promise<void>; addEventListener: (type: string, fn: (e: NDEFReadingEventLike) => void) => void; removeEventListener: (type: string, fn: (e: NDEFReadingEventLike) => void) => void } }).NDEFReader
+  const NDEFReader = (window as unknown as {
+    NDEFReader: new () => {
+      scan: (opts?: { signal?: AbortSignal }) => Promise<void>
+      addEventListener: (type: string, fn: (e: NDEFReadingEventLike) => void) => void
+      removeEventListener: (type: string, fn: (e: NDEFReadingEventLike) => void) => void
+    }
+  }).NDEFReader
   const ndef = new NDEFReader()
   const controller = new AbortController()
   const signal = options?.signal ?? controller.signal
@@ -49,6 +55,7 @@ export function scanNfcTag(options?: { signal?: AbortSignal }): Promise<string> 
   return new Promise((resolve, reject) => {
     const cleanup = () => {
       ndef.removeEventListener('reading', onReading)
+      ndef.removeEventListener('readingerror', onReadingError)
       try {
         controller.abort()
       } catch {
@@ -64,12 +71,23 @@ export function scanNfcTag(options?: { signal?: AbortSignal }): Promise<string> 
       }
     }
 
+    const onReadingError = () => {
+      cleanup()
+      reject(
+        new NfcScanError(
+          'Tag was detected but could not be read. Empty or unformatted tags may not work—try an NDEF-formatted tag or format this tag in Android settings.',
+          'NFC_ERROR'
+        )
+      )
+    }
+
     ndef.addEventListener('reading', onReading)
+    ndef.addEventListener('readingerror', onReadingError)
 
     ndef
       .scan({ signal })
       .then(() => {
-        // Scan started; wait for reading event
+        // Scan started; wait for reading or readingerror event
       })
       .catch((err: unknown) => {
         cleanup()
@@ -79,7 +97,13 @@ export function scanNfcTag(options?: { signal?: AbortSignal }): Promise<string> 
             return
           }
           if (err.name === 'AbortError') {
-            reject(new NfcScanError('Scan was cancelled.', 'NFC_ABORTED', err))
+            reject(
+              new NfcScanError(
+                'Scan stopped. If Android showed "New tag scanned", the system took the tag—try again and choose Chrome or Gryns if Android asks which app to use.',
+                'NFC_ABORTED',
+                err
+              )
+            )
             return
           }
           if (err.name === 'NotSupportedError') {
@@ -91,7 +115,12 @@ export function scanNfcTag(options?: { signal?: AbortSignal }): Promise<string> 
       })
 
     signal?.addEventListener?.('abort', () => {
-      reject(new NfcScanError('Scan was cancelled.', 'NFC_ABORTED'))
+      reject(
+        new NfcScanError(
+          'Scan stopped. If Android showed "New tag scanned", the system took the tag—try again and choose Chrome or Gryns if Android asks which app to use.',
+          'NFC_ABORTED'
+        )
+      )
     })
   })
 }

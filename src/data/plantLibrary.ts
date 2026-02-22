@@ -78,12 +78,12 @@ export const PLANT_LIBRARY: PlantOption[] = sortAlphabetically(
   (p) => p.name
 )
 
-/** Resolved plant image URL: uses img if set, otherwise /plants/{id}.webp (files in public/plants/). */
+/** Resolved plant image URL: uses img if set, otherwise plants/{id}.webp (relative for GitHub Pages). */
 export function getPlantImageUrl(plant: { id: string; img: string | null }): string {
-  return plant.img ?? `/plants/${plant.id}.webp`
+  return plant.img ?? `plants/${plant.id}.webp`
 }
 
-/** URL for list/dropdown icon: uses icon_img filename in public/plants/, e.g. /plants/bellpepper.webp */
+/** URL for list/dropdown icon: relative path to public/plants/, e.g. plants/bellpepper.webp */
 export function getPlantIconUrl(plant: { icon_img: string | null }): string | null {
-  return plant.icon_img ? `/plants/${plant.icon_img}` : null
+  return plant.icon_img ? `plants/${plant.icon_img}` : null
 }

@@ -35,6 +35,7 @@ export function OnboardingFlow() {
 
   const handleStep7Finish = async () => {
     await addPod({
+      ...(data.nfcPodId && { id: data.nfcPodId }),
       towerId: data.towerId,
       plantId: data.plantId,
       plantName: data.plantName,
@@ -114,7 +115,11 @@ export function OnboardingFlow() {
         />
       )}
       {step === 7 && (
-        <OnboardingStep6 onFinish={handleStep7Finish} />
+        <OnboardingStep6
+          nfcPodId={data.nfcPodId}
+          onNfcChange={(id) => setField('nfcPodId', id)}
+          onFinish={handleStep7Finish}
+        />
       )}
     </div>
   )

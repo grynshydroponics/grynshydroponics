@@ -13,6 +13,7 @@ export interface OnboardingFormData {
   photoDataUrl: string | null
   perenualId: number | null
   plantImageUrl: string | null
+  nfcPodId: string | null
 }
 
 const defaultData: OnboardingFormData = {
@@ -27,6 +28,7 @@ const defaultData: OnboardingFormData = {
   photoDataUrl: null,
   perenualId: null,
   plantImageUrl: null,
+  nfcPodId: null,
 }
 
 const TOTAL_STEPS = 7

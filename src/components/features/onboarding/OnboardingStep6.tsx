@@ -1,21 +1,71 @@
-import { WifiOff } from 'lucide-react'
+import { useState } from 'react'
+import { Nfc } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { scanNfcTag, isNfcSupported, NfcScanError } from '@/utils/nfc'
 
 interface Props {
+  nfcPodId: string | null
+  onNfcChange: (id: string | null) => void
   onFinish: () => void
 }
 
-export function OnboardingStep6({ onFinish }: Props) {
+export function OnboardingStep6({ nfcPodId, onNfcChange, onFinish }: Props) {
+  const [scanning, setScanning] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const supported = isNfcSupported()
+
+  const handleScan = async () => {
+    setError(null)
+    setScanning(true)
+    try {
+      const serial = await scanNfcTag()
+      onNfcChange(serial)
+    } catch (err) {
+      setError(err instanceof NfcScanError ? err.message : 'Scan failed.')
+    } finally {
+      setScanning(false)
+    }
+  }
+
   return (
     <div className="flex min-h-[60vh] flex-col justify-between px-4 py-6">
-      <div className="flex flex-col items-center text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-surface-muted">
-          <WifiOff className="h-10 w-10 text-slate-500" />
-        </div>
-        <h2 className="mt-6 text-2xl font-semibold text-slate-100">NFC (Coming Soon)</h2>
+      <div>
+        <h2 className="text-2xl font-semibold text-slate-100">Link NFC tag (optional)</h2>
         <p className="mt-2 text-slate-400">
-          Tag your pods with NFC for quick identification. This feature will be available in a future update.
+          Scan a tag to use its ID for this pod. Later, scanning that tag from the nav will open this pod.
         </p>
+        {supported ? (
+          <div className="mt-6">
+            {nfcPodId ? (
+              <div className="flex items-center justify-between gap-2 rounded-xl border border-slate-600 bg-surface-muted px-3 py-2">
+                <span className="truncate text-sm text-slate-300" title={nfcPodId}>
+                  Tag: {nfcPodId}
+                </span>
+                <Button variant="ghost" size="sm" onClick={() => { onNfcChange(null); setError(null); }}>
+                  Clear
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  onClick={handleScan}
+                  disabled={scanning}
+                >
+                  <Nfc className="mr-2 h-4 w-4" />
+                  {scanning ? 'Hold device near tag...' : 'Scan tag'}
+                </Button>
+                {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
+              </>
+            )}
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-slate-500">
+            NFC is not supported on this device. You can link a tag later when adding pods from a tower.
+          </p>
+        )}
       </div>
       <Button className="w-full" onClick={onFinish}>
         Go to Dashboard

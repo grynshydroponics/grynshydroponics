@@ -11,13 +11,14 @@ type BeforeInstallPromptEvent = Event & {
 }
 
 export function InstallGate({ children }: { children: React.ReactNode }) {
-  const [showApp, setShowApp] = useState(false)
+  const isPWA = isRunningAsPWA()
+  const skipped = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(SKIP_GATE_KEY) === '1'
+  // When opened as PWA (or user previously skipped), show app immediately — no install screen, go straight to splash then app
+  const [showApp, setShowApp] = useState(() => isPWA || skipped)
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [installing, setInstalling] = useState(false)
 
-  const isPWA = isRunningAsPWA()
   const isMobile = isMobileLike()
-  const skipped = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(SKIP_GATE_KEY) === '1'
 
   useEffect(() => {
     if (isPWA || skipped) {

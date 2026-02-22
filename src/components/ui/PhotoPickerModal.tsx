@@ -22,11 +22,13 @@ export function PhotoPickerModal({
   const streamRef = useRef<MediaStream | null>(null)
   const [cameraView, setCameraView] = useState(false)
   const [cameraError, setCameraError] = useState<string | null>(null)
+  const [cameraReady, setCameraReady] = useState(false)
 
   useEffect(() => {
     if (!open) {
       setCameraView(false)
       setCameraError(null)
+      setCameraReady(false)
       streamRef.current?.getTracks().forEach((t) => t.stop())
       streamRef.current = null
     }
@@ -35,6 +37,7 @@ export function PhotoPickerModal({
   useEffect(() => {
     if (!open || !cameraView || !videoRef.current) return
     setCameraError(null)
+    setCameraReady(false)
     const video = videoRef.current
     navigator.mediaDevices
       .getUserMedia({ video: { facingMode: 'environment' }, audio: false })
@@ -68,19 +71,36 @@ export function PhotoPickerModal({
 
   const handleCapture = () => {
     const video = videoRef.current
-    if (!video || !video.srcObject || video.readyState < 2) return
+    if (!video || !video.srcObject) return
+    let w = video.videoWidth
+    let h = video.videoHeight
+    if (!w || !h) return
+    const maxDim = 1024
+    if (w > maxDim || h > maxDim) {
+      if (w > h) {
+        h = Math.round((h * maxDim) / w)
+        w = maxDim
+      } else {
+        w = Math.round((w * maxDim) / h)
+        h = maxDim
+      }
+    }
     const canvas = document.createElement('canvas')
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
+    canvas.width = w
+    canvas.height = h
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    ctx.drawImage(video, 0, 0)
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.9)
-    streamRef.current?.getTracks().forEach((t) => t.stop())
-    streamRef.current = null
-    setCameraView(false)
-    onChange(dataUrl)
-    onClose()
+    ctx.drawImage(video, 0, 0, w, h)
+    try {
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
+      streamRef.current?.getTracks().forEach((t) => t.stop())
+      streamRef.current = null
+      setCameraView(false)
+      onChange(dataUrl)
+      onClose()
+    } catch {
+      setCameraError('Failed to capture photo')
+    }
   }
 
   const handleRemove = () => {
@@ -93,7 +113,7 @@ export function PhotoPickerModal({
   if (cameraView) {
     return (
       <div
-        className="fixed inset-0 z-30 flex flex-col bg-black"
+        className="fixed inset-0 z-[200] flex flex-col bg-black"
         role="dialog"
         aria-modal="true"
         aria-label="Camera"
@@ -104,6 +124,8 @@ export function PhotoPickerModal({
           playsInline
           muted
           className="h-full w-full object-cover"
+          onLoadedData={() => setCameraReady(videoRef.current != null && videoRef.current.videoWidth > 0)}
+          onCanPlay={() => setCameraReady(videoRef.current != null && videoRef.current.videoWidth > 0)}
         />
         {cameraError && (
           <div className="absolute inset-0 flex items-center justify-center bg-slate-900/90 p-4">
@@ -117,7 +139,7 @@ export function PhotoPickerModal({
           </Button>
           <Button
             onClick={handleCapture}
-            disabled={!!cameraError}
+            disabled={!!cameraError || !cameraReady}
             className="h-14 w-14 rounded-full border-4 border-white bg-white/20 p-0"
             aria-label="Capture photo"
           >
@@ -130,7 +152,7 @@ export function PhotoPickerModal({
 
   return (
     <div
-      className="fixed inset-0 z-30 flex items-end justify-center bg-black/60 p-4 sm:items-center"
+      className="fixed inset-0 z-[200] flex items-end justify-center bg-black/60 p-4 sm:items-center"
       onClick={onClose}
       role="dialog"
       aria-modal="true"

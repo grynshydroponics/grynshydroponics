@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Leaf, Download } from 'lucide-react'
+import { Leaf, Download, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { isRunningAsPWA, isMobileLike } from '@/utils/pwa'
 
@@ -10,13 +10,18 @@ type BeforeInstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
+/** Try to close the browser tab (works only for script-opened windows; often no-op in normal tabs). */
+function tryCloseWindow() {
+  window.close()
+}
+
 export function InstallGate({ children }: { children: React.ReactNode }) {
   const isPWA = isRunningAsPWA()
   const skipped = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(SKIP_GATE_KEY) === '1'
-  // When opened as PWA (or user previously skipped), show app immediately — no install screen, go straight to splash then app
   const [showApp, setShowApp] = useState(() => isPWA || skipped)
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [installing, setInstalling] = useState(false)
+  const [installJustFinished, setInstallJustFinished] = useState(false)
 
   const isMobile = isMobileLike()
 
@@ -34,13 +39,25 @@ export function InstallGate({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('beforeinstallprompt', handler)
   }, [isPWA, skipped])
 
+  useEffect(() => {
+    const onInstalled = () => {
+      setInstallJustFinished(true)
+      tryCloseWindow()
+    }
+    window.addEventListener('appinstalled', onInstalled)
+    return () => window.removeEventListener('appinstalled', onInstalled)
+  }, [])
+
   const handleInstall = async () => {
     if (!installPrompt) return
     setInstalling(true)
     try {
       await installPrompt.prompt()
       const { outcome } = await installPrompt.userChoice
-      if (outcome === 'accepted') setShowApp(true)
+      if (outcome === 'accepted') {
+        setInstallJustFinished(true)
+        tryCloseWindow()
+      }
     } finally {
       setInstalling(false)
     }
@@ -49,6 +66,32 @@ export function InstallGate({ children }: { children: React.ReactNode }) {
   const handleSkip = () => {
     sessionStorage.setItem(SKIP_GATE_KEY, '1')
     setShowApp(true)
+  }
+
+  const handlePostInstallDone = () => {
+    tryCloseWindow()
+    setShowApp(true)
+  }
+
+  // Just finished installing: ask user to close tab and open PWA from home screen
+  if (installJustFinished && !isPWA) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900 px-6 text-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-surface shadow-xl">
+          <CheckCircle className="h-12 w-12 text-green-500" aria-hidden />
+        </div>
+        <h1 className="mt-6 text-2xl font-semibold text-slate-100">Gryns is installed</h1>
+        <p className="mt-2 max-w-sm text-slate-400">
+          Close this tab, then open <strong>Gryns</strong> from your home screen to use the app.
+        </p>
+        <Button className="mt-8 w-full max-w-xs" onClick={handlePostInstallDone}>
+          Done
+        </Button>
+        <p className="mt-3 text-xs text-slate-500">
+          If this tab didn’t close, tap Done and open Gryns from your home screen.
+        </p>
+      </div>
+    )
   }
 
   // Already installed or user chose to skip: show the app

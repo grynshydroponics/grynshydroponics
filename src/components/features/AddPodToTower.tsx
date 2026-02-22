@@ -8,7 +8,7 @@ import { Select } from '@/components/ui/Select'
 import { PlantSelect } from '@/components/ui/PlantSelect'
 import { PLANT_LIBRARY } from '@/data/plants'
 import { useTowerContext } from '@/context/TowerContext'
-import { scanNfcTag, isNfcSupported, NfcScanError } from '@/utils/nfc'
+import { scanNfcTag, formatTag, isNfcSupported, NfcScanError } from '@/utils/nfc'
 
 export function AddPodToTower() {
   const { towerId } = useParams<{ towerId: string }>()
@@ -27,6 +27,7 @@ export function AddPodToTower() {
   const [saving, setSaving] = useState(false)
   const [nfcPodId, setNfcPodId] = useState<string | null>(null)
   const [nfcScanning, setNfcScanning] = useState(false)
+  const [nfcFormatting, setNfcFormatting] = useState(false)
   const [nfcError, setNfcError] = useState<string | null>(null)
 
   if (!tower) {
@@ -189,7 +190,7 @@ export function AddPodToTower() {
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-400">Link NFC tag (optional)</label>
             <p className="mb-2 text-xs text-slate-500">
-              Scan a tag to use its ID for this pod. Later, scanning that tag from the nav will open this pod.
+              Scan a tag to use its ID for this pod. If Android shows &quot;empty tag&quot;, tap Format empty tag first.
             </p>
             {nfcPodId ? (
               <div className="flex items-center justify-between gap-2 rounded-lg border border-slate-600 bg-surface-muted px-3 py-2">
@@ -210,10 +211,30 @@ export function AddPodToTower() {
                   variant="secondary"
                   className="w-full"
                   onClick={handleScanTag}
-                  disabled={nfcScanning}
+                  disabled={nfcScanning || nfcFormatting}
                 >
                   <Nfc className="mr-2 h-4 w-4" />
                   {nfcScanning ? 'Hold device near tag...' : 'Scan tag'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full text-slate-400"
+                  onClick={async () => {
+                    setNfcError(null)
+                    setNfcFormatting(true)
+                    try {
+                      await formatTag()
+                      setNfcError(null)
+                    } catch (e) {
+                      setNfcError(e instanceof NfcScanError ? e.message : 'Format failed.')
+                    } finally {
+                      setNfcFormatting(false)
+                    }
+                  }}
+                  disabled={nfcScanning || nfcFormatting}
+                >
+                  {nfcFormatting ? 'Hold tag to device…' : 'Format empty tag'}
                 </Button>
                 {nfcError && <p className="mt-1 text-sm text-red-400">{nfcError}</p>}
               </>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Nfc } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { useTowerContext } from '@/context/TowerContext'
-import { scanNfcTag, isNfcSupported, NfcScanError } from '@/utils/nfc'
+import { scanNfcTag, formatTag, isNfcSupported, NfcScanError } from '@/utils/nfc'
 
 interface NfcScanModalProps {
   open: boolean
@@ -15,9 +15,21 @@ export function NfcScanModal({ open, onClose }: NfcScanModalProps) {
   const { pods } = useTowerContext()
   const [status, setStatus] = useState<'idle' | 'scanning' | 'found' | 'not_found' | 'error'>('idle')
   const [message, setMessage] = useState<string>('')
+  const [formatting, setFormatting] = useState(false)
+  const [formatMessage, setFormatMessage] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
 
   const supported = isNfcSupported()
+
+  const handleFormatTag = () => {
+    if (!supported) return
+    setFormatMessage(null)
+    setFormatting(true)
+    formatTag()
+      .then(() => setFormatMessage('Tag formatted. You can scan it now.'))
+      .catch((err) => setFormatMessage(err instanceof NfcScanError ? err.message : 'Format failed.'))
+      .finally(() => setFormatting(false))
+  }
 
   const startScan = () => {
     if (!supported) return
@@ -88,7 +100,12 @@ export function NfcScanModal({ open, onClose }: NfcScanModalProps) {
             <p className="mt-2 text-sm text-red-400">{message}</p>
           ) : (
             <p className="mt-2 text-sm text-slate-400">
-              Link a tag when adding a pod; then scanning that tag will open the pod.
+              Link a tag when adding a pod; then scanning that tag will open the pod. If Android shows &quot;empty tag&quot;, format the tag first.
+            </p>
+          )}
+          {formatMessage && (
+            <p className={`mt-2 text-sm ${formatMessage.startsWith('Tag formatted') ? 'text-green-400' : 'text-red-400'}`}>
+              {formatMessage}
             </p>
           )}
 
@@ -98,6 +115,12 @@ export function NfcScanModal({ open, onClose }: NfcScanModalProps) {
                 {status === 'idle' ? 'Start scan' : 'Scan again'}
               </Button>
             )}
+            {supported && !formatting && (
+              <Button variant="secondary" className="w-full" onClick={handleFormatTag}>
+                Format empty tag
+              </Button>
+            )}
+            {formatting && <p className="text-center text-sm text-slate-400">Hold tag to device…</p>}
             {status === 'scanning' && (
               <Button variant="secondary" className="w-full" onClick={stopScan}>
                 Cancel scan

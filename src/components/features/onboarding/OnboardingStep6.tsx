@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Nfc } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { scanNfcTag, isNfcSupported, NfcScanError } from '@/utils/nfc'
+import { scanNfcTag, formatTag, isNfcSupported, NfcScanError } from '@/utils/nfc'
 
 interface Props {
   nfcPodId: string | null
@@ -11,9 +11,19 @@ interface Props {
 
 export function OnboardingStep6({ nfcPodId, onNfcChange, onFinish }: Props) {
   const [scanning, setScanning] = useState(false)
+  const [formatting, setFormatting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const supported = isNfcSupported()
+
+  const handleFormatTag = () => {
+    setError(null)
+    setFormatting(true)
+    formatTag()
+      .then(() => setError(null))
+      .catch((e) => setError(e instanceof NfcScanError ? e.message : 'Format failed.'))
+      .finally(() => setFormatting(false))
+  }
 
   const handleScan = async () => {
     setError(null)
@@ -33,7 +43,7 @@ export function OnboardingStep6({ nfcPodId, onNfcChange, onFinish }: Props) {
       <div>
         <h2 className="text-2xl font-semibold text-slate-100">Link NFC tag (optional)</h2>
         <p className="mt-2 text-slate-400">
-          Scan a tag to use its ID for this pod. Later, scanning that tag from the nav will open this pod.
+          Scan a tag to use its ID for this pod. If Android shows &quot;empty tag&quot;, tap Format empty tag first.
         </p>
         {supported ? (
           <div className="mt-6">
@@ -52,10 +62,18 @@ export function OnboardingStep6({ nfcPodId, onNfcChange, onFinish }: Props) {
                   variant="secondary"
                   className="w-full"
                   onClick={handleScan}
-                  disabled={scanning}
+                  disabled={scanning || formatting}
                 >
                   <Nfc className="mr-2 h-4 w-4" />
                   {scanning ? 'Hold device near tag...' : 'Scan tag'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full text-slate-400"
+                  onClick={handleFormatTag}
+                  disabled={scanning || formatting}
+                >
+                  {formatting ? 'Hold tag to device…' : 'Format empty tag'}
                 </Button>
                 {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
               </>

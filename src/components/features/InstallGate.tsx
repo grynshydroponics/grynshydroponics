@@ -21,6 +21,8 @@ export function InstallGate({ children }: { children: React.ReactNode }) {
   const [showApp, setShowApp] = useState(() => isPWA || skipped)
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [installing, setInstalling] = useState(false)
+  /** True after user accepted install; we wait for appinstalled before showing success or closing. */
+  const [installAccepted, setInstallAccepted] = useState(false)
   const [installJustFinished, setInstallJustFinished] = useState(false)
 
   const isMobile = isMobileLike()
@@ -41,12 +43,24 @@ export function InstallGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const onInstalled = () => {
+      setInstallAccepted(false)
       setInstallJustFinished(true)
       tryCloseWindow()
     }
     window.addEventListener('appinstalled', onInstalled)
     return () => window.removeEventListener('appinstalled', onInstalled)
   }, [])
+
+  // If appinstalled never fires (e.g. older browser), show success after 15s
+  useEffect(() => {
+    if (!installAccepted) return
+    const t = window.setTimeout(() => {
+      setInstallAccepted(false)
+      setInstallJustFinished(true)
+      tryCloseWindow()
+    }, 15000)
+    return () => window.clearTimeout(t)
+  }, [installAccepted])
 
   const handleInstall = async () => {
     if (!installPrompt) return
@@ -55,8 +69,7 @@ export function InstallGate({ children }: { children: React.ReactNode }) {
       await installPrompt.prompt()
       const { outcome } = await installPrompt.userChoice
       if (outcome === 'accepted') {
-        setInstallJustFinished(true)
-        tryCloseWindow()
+        setInstallAccepted(true)
       }
     } finally {
       setInstalling(false)
@@ -71,6 +84,21 @@ export function InstallGate({ children }: { children: React.ReactNode }) {
   const handlePostInstallDone = () => {
     tryCloseWindow()
     setShowApp(true)
+  }
+
+  // User accepted install; waiting for appinstalled (don't close or show success until then)
+  if (installAccepted && !installJustFinished && !isPWA) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900 px-6 text-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-surface shadow-xl">
+          <Leaf className="h-10 w-10 text-accent animate-pulse" aria-hidden />
+        </div>
+        <h1 className="mt-6 text-2xl font-semibold text-slate-100">Adding to home screen</h1>
+        <p className="mt-2 max-w-sm text-slate-400">
+          Wait for the app to be added, then you can open Gryns from your home screen.
+        </p>
+      </div>
+    )
   }
 
   // Just finished installing: ask user to close tab and open PWA from home screen

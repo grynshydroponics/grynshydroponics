@@ -32,11 +32,9 @@ jobs:
         run: npm ci
 
       # Build produces dist/ (HTML, JS, CSS). No node_modules in the output.
+      # Uses relative base (./) so assets load at any path (e.g. .../grynhydroponics/).
       - name: Build
         run: npm run build
-        env:
-          # Change to your repo name if different (e.g. Gryns -> /Gryns/)
-          VITE_BASE_PATH: /${{ github.event.repository.name }}/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

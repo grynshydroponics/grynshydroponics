@@ -10,12 +10,6 @@ interface Props {
 }
 
 export function OnboardingStep2({ plantId, onChange, onNext }: Props) {
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const id = e.target.value
-    const plant = PLANT_LIBRARY.find((p) => p.id === id)
-    onChange(id, plant?.name ?? id)
-  }
-
   return (
     <div className="flex min-h-[60vh] flex-col justify-between px-4 py-6">
       <div>

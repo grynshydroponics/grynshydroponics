@@ -6,8 +6,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// For GitHub Pages project site use base: '/REPO_NAME/' (e.g. '/Gryns/'). For custom domain or user site use '/'.
-const base = process.env.VITE_BASE_PATH || '/'
+// Relative base so assets load correctly on GitHub Pages (e.g. .../grynhydroponics/) regardless of repo name.
+// For a custom domain at root, set VITE_BASE_PATH='/'
+const base = process.env.VITE_BASE_PATH || './'
 
 export default defineConfig({
   base,
@@ -21,7 +22,7 @@ export default defineConfig({
         theme_color: '#0f172a',
         background_color: '#0f172a',
         display: 'standalone',
-        start_url: base,
+        start_url: base === './' ? '.' : base,
       },
     }),
   ],

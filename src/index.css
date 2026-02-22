@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+  body {
+    @apply bg-slate-900 text-slate-100 min-h-screen min-h-[100dvh];
+  }
+}
+
+/* Pod detail hero: circular image; the div clips so nothing overrides */
+@layer components {
+  .pod-detail-hero-image {
+    border-radius: 50%;
+    overflow: hidden;
+  }
+}
+
+/* Single-line form controls: apply to select, input, number, or button so inline edit rows don't grow.
+   Use this class on any form control in an inline/form area to keep a consistent max height. */
+@layer components {
+  .form-inline-control {
+    min-height: 2rem !important;
+    max-height: 2rem !important;
+    padding: 0.25rem 0.5rem !important;
+    line-height: 1.25 !important;
+    box-sizing: border-box;
+  }
+}

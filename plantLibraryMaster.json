@@ -1,0 +1,1006 @@
+{
+  "_schema": [
+    "name",
+    "species",
+    "description",
+    "img",
+    "icon_img",
+    "harvest",
+    "yield",
+    "growth_stages",
+    "hardinessZone"
+  ],
+  "_growth_stage_keys": [
+    "germination",
+    "seedling",
+    "vegetative",
+    "flowering",
+    "fruiting"
+  ],
+  "plants": [
+    {
+      "name": "basil",
+      "species": "Ocimum basilicum",
+      "description": "A fragrant, tender herb famous for its role in Italian cuisine and pesto. It grows in lush, green bushy mounds.",
+      "img": null,
+      "icon_img": "basil.webp",
+      "harvest": { "duration": { "max": 12, "min": 10, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "135g (4.8 oz)" },
+      "hardinessZone": { "max": 11, "min": 9 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 14, "max": 21, "unit": "days" },
+          "description": "Seeds sprout; keep media warm and evenly moist.",
+          "rate": 0.6
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "First true leaves; roots establish in plug/cube."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Rapid leaf growth; pinch tops to encourage branching."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "bell pepper",
+      "species": "Capsicum annuum",
+      "description": "A sweet, crunchy vegetable that grows on sturdy, upright plants. Fruits change from green to vibrant red, yellow, or orange.",
+      "img": null,
+      "icon_img": "bellpepper.webp",
+      "harvest": { "duration": { "max": 17, "min": 17, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "240g (8.5 oz)" },
+      "hardinessZone": { "max": 11, "min": 1 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 8, "max": 28, "unit": "days" },
+          "description": "Warm temps speed sprouting; keep cubes damp, not soaked.",
+          "rate": 0.55
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "True leaves; build a sturdy stem before up-pot/transplant."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 28, "max": 42, "unit": "days" },
+          "description": "Leaf + branch development; remove early buds for size."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 14, "max": 21, "unit": "days" },
+          "description": "Blooms open; pollination period begins (shake/airflow helps indoors)."
+        },
+        {
+          "stage": "fruiting",
+          "duration": { "min": 28, "max": 56, "unit": "days" },
+          "description": "Fruit sets, enlarges, then colors; harvest green or fully ripe."
+        }
+      ]
+    },
+    {
+      "name": "parsley",
+      "species": "Petroselinum crispum",
+      "description": "A versatile biennial herb with bright green, ruffled or flat leaves used as a fresh garnish or flavoring.",
+      "img": null,
+      "icon_img": "parsley.webp",
+      "harvest": { "duration": { "max": 26, "min": 17, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "1.5kg (3.3 lbs)" },
+      "hardinessZone": { "max": 9, "min": 6 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 8, "max": 21, "unit": "days" },
+          "description": "Often slow/erratic; keep consistently moist.",
+          "rate": 0.6
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 14, "max": 21, "unit": "days" },
+          "description": "Slow early growth; focus on roots and steady light."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 21, "max": 42, "unit": "days" },
+          "description": "Leaf production accelerates; harvest outer stems first."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "spinach",
+      "species": "Spinacia oleracea",
+      "description": "A nutrient-rich leafy green that thrives in cool water. Excellent for salads, smoothies, and sautéing.",
+      "img": null,
+      "icon_img": "spinach.webp",
+      "harvest": { "duration": { "max": 8, "min": 6, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "100g (3.5 oz)" },
+      "hardinessZone": { "max": 10, "min": 8 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 1, "max": 7, "unit": "days" },
+          "description": "Fast sprout in cool conditions; avoid high heat.",
+          "rate": 0.6
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 7, "max": 12, "unit": "days" },
+          "description": "Baby leaves expand; keep temps moderate/cool."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Leaf mass builds quickly; harvest baby or mature leaves."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "tomato",
+      "species": "Solanum lycopersicum",
+      "description": "High-yielding plants producing juicy, red fruits. Requires a bit of support as it grows tall and heavy.",
+      "img": null,
+      "icon_img": "tomato.webp",
+      "harvest": { "duration": { "max": 14, "min": 10, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "340g (12 oz)" },
+      "hardinessZone": { "max": 10, "min": 2 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 1, "max": 7, "unit": "days" },
+          "description": "Warm + moist germination; keep light ready after sprout.",
+          "rate": 0.75
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 10, "max": 21, "unit": "days" },
+          "description": "True leaves; begin gentle airflow for strong stems."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 21, "max": 35, "unit": "days" },
+          "description": "Vine growth; prune/train depending on indeterminate/determinate."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 14, "max": 21, "unit": "days" },
+          "description": "First truss blooms; vibration/airflow improves fruit set indoors."
+        },
+        {
+          "stage": "fruiting",
+          "duration": { "min": 25, "max": 45, "unit": "days" },
+          "description": "Fruit enlarges then ripens; harvest at full color or breaker stage."
+        }
+      ]
+    },
+    {
+      "name": "romaine lettuce",
+      "species": "Lactuca sativa L. var. longifolia",
+      "description": "A sturdy lettuce forming tall, upright heads with crisp, crunchy ribs and dark green outer leaves.",
+      "img": null,
+      "icon_img": "romainelettuce.webp",
+      "harvest": { "duration": { "max": 11, "min": 10, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "210g (7.5 oz)" },
+      "hardinessZone": { "max": 11, "min": 2 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 7, "max": 10, "unit": "days" },
+          "description": "Sprouts in moderate temps; avoid heat during germ.",
+          "rate": 0.85
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 7, "max": 12, "unit": "days" },
+          "description": "Small rosette forms; keep light close to avoid stretching."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 21, "max": 35, "unit": "days" },
+          "description": "Head/leaf expansion; harvest outer leaves or whole head."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "dill",
+      "species": "Anethum graveolens",
+      "description": "An aromatic herb with feathery, fern-like blue-green leaves. Essential for pickling and seasoning fish.",
+      "img": null,
+      "icon_img": "dill.webp",
+      "harvest": { "duration": { "max": 12, "min": 10, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "42g (1.5 oz)" },
+      "hardinessZone": { "max": 11, "min": 2 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 10, "max": 21, "unit": "days" },
+          "description": "Sprouts in 1–2+ weeks; keep consistently moist.",
+          "rate": 0.7
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 10, "max": 14, "unit": "days" },
+          "description": "Fine leaves develop; avoid transplant shock if possible."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 21, "max": 28, "unit": "days" },
+          "description": "Fast frond growth; begin cutting once well-leafed."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "Umbels form if allowed; leaf quality drops when it bolts."
+        },
+        null
+      ]
+    },
+    {
+      "name": "green onion",
+      "species": "Allium fistulosum",
+      "description": "Also known as scallions; these are harvested for their succulent, hollow green stalks and mild white bases.",
+      "img": null,
+      "icon_img": "greenonion.webp",
+      "harvest": { "duration": { "max": 10, "min": 8, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "175g (6.2 oz)" },
+      "hardinessZone": { "max": 10, "min": 6 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "Sprouts in 1–2 weeks; steady moisture improves uniformity.",
+          "rate": 0.75
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 10, "max": 20, "unit": "days" },
+          "description": "Thin blades lengthen; keep light strong to prevent flopping."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 20, "max": 50, "unit": "days" },
+          "description": "Stalks thicken/lengthen; harvest by pulling or cut-and-come-again."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "cherry tomato",
+      "species": "Solanum lycopersicum var. cerasiforme",
+      "description": "Bite-sized, sweet tomatoes that grow in prolific clusters. Perfect for snacking and salads.",
+      "img": null,
+      "icon_img": "cherrytomato.webp",
+      "harvest": { "duration": { "max": 12, "min": 10, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "350g (12.3 oz)" },
+      "hardinessZone": { "max": 11, "min": 3 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 5, "max": 10, "unit": "days" },
+          "description": "Quick sprout with warmth; move to light immediately.",
+          "rate": 0.8
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 7, "max": 12, "unit": "days" },
+          "description": "Vigorous baby growth; first true leaves appear."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 15, "max": 25, "unit": "days" },
+          "description": "Branch/vine growth; start training and remove weak suckers."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 10, "max": 20, "unit": "days" },
+          "description": "Trusses bloom; vibration/airflow helps set fruit indoors."
+        },
+        {
+          "stage": "fruiting",
+          "duration": { "min": 25, "max": 40, "unit": "days" },
+          "description": "Clusters fill and ripen; frequent picking boosts production."
+        }
+      ]
+    },
+    {
+      "name": "chives",
+      "species": "Allium schoenoprasum",
+      "description": "A hardy perennial with thin, grass-like leaves and a mild onion flavor. Produces beautiful edible purple flowers.",
+      "img": null,
+      "icon_img": "chives.webp",
+      "harvest": { "duration": { "max": 12, "min": 10, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "32g (1.1 oz)" },
+      "hardinessZone": { "max": 9, "min": 3 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 14, "max": 21, "unit": "days" },
+          "description": "Slow sprouter; keep moist and avoid drying out.",
+          "rate": 0.65
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 14, "max": 21, "unit": "days" },
+          "description": "Fine blades emerge; density fills in gradually."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 21, "max": 35, "unit": "days" },
+          "description": "Clump thickens; harvest by cutting leaves above the base."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 7, "max": 21, "unit": "days" },
+          "description": "Purple blooms if allowed; cut flower stalks to keep leaf-focused."
+        },
+        null
+      ]
+    },
+    {
+      "name": "cilantro",
+      "species": "Coriandrum sativum",
+      "description": "A fast-growing annual herb used widely in salsa and curry. Leaves are citrusy and pungent.",
+      "img": null,
+      "icon_img": "cilantro.webp",
+      "harvest": { "duration": { "max": 8, "min": 4, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "77g (2.7 oz)" },
+      "hardinessZone": { "max": 11, "min": 2 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "Sprouts in about 1–2 weeks; cooler temps reduce bolting.",
+          "rate": 0.6
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "True leaves form; begin light harvest once established."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 21, "max": 35, "unit": "days" },
+          "description": "Leaf production phase; harvest outer stems to extend life."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "Bolting starts; leaf flavor changes—allow for coriander if desired."
+        },
+        null
+      ]
+    },
+    {
+      "name": "jalapeno",
+      "species": "Capsicum annuum 'Jalapeño'",
+      "description": "A medium-sized chili pepper known for its mild to moderate heat. Dark green pods that ripen to a deep red.",
+      "img": null,
+      "icon_img": "jalapeno.webp",
+      "harvest": { "duration": { "max": 14, "min": 10, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "210g (7.4 oz)" },
+      "hardinessZone": { "max": 11, "min": 9 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 7, "max": 21, "unit": "days" },
+          "description": "Peppers prefer warmth; germination slows when cool.",
+          "rate": 0.7
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "True leaves; build a thick stem before heavy feeding."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 21, "max": 42, "unit": "days" },
+          "description": "Branching and canopy growth; support may be needed later."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 10, "max": 21, "unit": "days" },
+          "description": "Blooms open; gentle shaking helps pollination indoors."
+        },
+        {
+          "stage": "fruiting",
+          "duration": { "min": 20, "max": 45, "unit": "days" },
+          "description": "Pods set and enlarge; harvest green or let ripen red for more heat."
+        }
+      ]
+    },
+    {
+      "name": "lettuce",
+      "species": "Lactuca sativa",
+      "description": "Standard soft-leaf lettuce, perfect for fresh garden salads. Grows quickly and comes in many colors.",
+      "img": null,
+      "icon_img": "lettuce.webp",
+      "harvest": { "duration": { "max": 8, "min": 6, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "175g (6.2 oz)" },
+      "hardinessZone": { "max": 11, "min": 2 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 7, "max": 10, "unit": "days" },
+          "description": "Sprouts quickly; cool temps improve uniformity.",
+          "rate": 0.85
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 7, "max": 12, "unit": "days" },
+          "description": "Small rosette; keep light strong to prevent stretching."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Rapid leaf expansion; harvest baby leaves or full head."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "strawberry",
+      "species": "Fragaria × ananassa",
+      "description": "A favorite for towers; everbearing varieties produce sweet red berries throughout the warm season.",
+      "img": null,
+      "icon_img": "strawberry.webp",
+      "harvest": { "duration": { "max": 14, "min": 10, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "105g (3.7 oz)" },
+      "hardinessZone": { "max": 10, "min": 3 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Seed starts are slow; many growers use crowns instead.",
+          "rate": 0.5
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 21, "max": 42, "unit": "days" },
+          "description": "Leaf set builds; roots establish before pushing flowers."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 21, "max": 42, "unit": "days" },
+          "description": "Crown strengthens; steady nutrition prevents stalling."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 7, "max": 21, "unit": "days" },
+          "description": "Blooms open; pollination needed (hand pollinate indoors)."
+        },
+        {
+          "stage": "fruiting",
+          "duration": { "min": 21, "max": 35, "unit": "days" },
+          "description": "Berries swell then color; harvest fully red for best flavor."
+        }
+      ]
+    },
+    {
+      "name": "kale",
+      "species": "Brassica oleracea var. sabellica",
+      "description": "A nutrient-dense superfood with ruffled, hardy leaves. Becomes sweeter when grown in cooler temperatures.",
+      "img": null,
+      "icon_img": "kale.webp",
+      "harvest": { "duration": { "max": 10, "min": 8, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "140g (4.9 oz)" },
+      "hardinessZone": { "max": 10, "min": 7 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 5, "max": 10, "unit": "days" },
+          "description": "Fast sprouting; moderate temps are ideal.",
+          "rate": 0.8
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 10, "max": 14, "unit": "days" },
+          "description": "True leaves; keep airflow for thick stems."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Leaf production ramps; harvest outer leaves repeatedly."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "bok choy",
+      "species": "Brassica rapa subsp. chinensis",
+      "description": "Chinese cabbage with thick, crunchy white stalks and tender green leaves. Popular in stir-fries.",
+      "img": null,
+      "icon_img": "bokchoy.webp",
+      "harvest": { "duration": { "max": 7, "min": 5, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "245g (8.6 oz)" },
+      "hardinessZone": { "max": 11, "min": 4 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 4, "max": 10, "unit": "days" },
+          "description": "Quick sprout; keep evenly moist.",
+          "rate": 0.85
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 7, "max": 10, "unit": "days" },
+          "description": "Small leaves and petioles form; avoid overcrowding."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Stalks thicken quickly; harvest baby or full size."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "swiss chard",
+      "species": "Beta vulgaris subsp. vulgaris",
+      "description": "An ornamental and edible green with large, glossy leaves and stems that come in a rainbow of colors.",
+      "img": null,
+      "icon_img": "swisschard.webp",
+      "harvest": { "duration": { "max": 10, "min": 8, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "196g (6.9 oz)" },
+      "hardinessZone": { "max": 10, "min": 6 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "Sprouts in ~1–2 weeks; each seed cluster can yield multiple seedlings.",
+          "rate": 0.75
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 10, "max": 14, "unit": "days" },
+          "description": "Early leaves expand; thin to avoid crowding."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 21, "max": 35, "unit": "days" },
+          "description": "Stems lengthen; harvest outer leaves for continuous regrowth."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "mint",
+      "species": "Mentha",
+      "description": "Highly aromatic and fast-growing herb. Its refreshing leaves are perfect for teas and cocktails.",
+      "img": null,
+      "icon_img": "mint.webp",
+      "harvest": { "duration": { "max": 12, "min": 8, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "56g (2 oz)" },
+      "hardinessZone": { "max": 9, "min": 3 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 10, "max": 15, "unit": "days" },
+          "description": "Mint seed is slower; many growers use cuttings.",
+          "rate": 0.5
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 10, "max": 14, "unit": "days" },
+          "description": "True leaves; keep trimmed to encourage bushiness."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Fast leaf growth; begin harvesting tips once established."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "oregano",
+      "species": "Origanum vulgare",
+      "description": "A woody perennial with a sprawling habit. Intensely flavored leaves are a staple of Mediterranean cooking.",
+      "img": null,
+      "icon_img": "oregano.webp",
+      "harvest": { "duration": { "max": 14, "min": 10, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "35g (1.2 oz)" },
+      "hardinessZone": { "max": 10, "min": 4 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "Small seed; surface sow and keep humid.",
+          "rate": 0.6
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 14, "max": 21, "unit": "days" },
+          "description": "Slow early growth; avoid overwatering."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 28, "max": 49, "unit": "days" },
+          "description": "Fills in and branches; harvest tips to keep compact."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "sage",
+      "species": "Salvia officinalis",
+      "description": "A savory herb with velvet-textured, grayish-green leaves. Adds a warm, earthy depth to many dishes.",
+      "img": null,
+      "icon_img": "sage.webp",
+      "harvest": { "duration": { "max": 15, "min": 12, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "28g (1 oz)" },
+      "hardinessZone": { "max": 8, "min": 4 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 10, "max": 21, "unit": "days" },
+          "description": "Can be slow; keep warm and lightly moist.",
+          "rate": 0.55
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 14, "max": 21, "unit": "days" },
+          "description": "Establishes slowly; avoid heavy nutrients early."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 35, "max": 56, "unit": "days" },
+          "description": "Woody growth begins; harvest lightly at first to avoid stunting."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "thyme",
+      "species": "Thymus vulgaris",
+      "description": "A low-growing, tiny-leaved herb with a powerful, woodsy aroma. Extremely durable and easy to grow.",
+      "img": null,
+      "icon_img": "thyme.webp",
+      "harvest": { "duration": { "max": 16, "min": 12, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "28g (1 oz)" },
+      "hardinessZone": { "max": 9, "min": 5 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Very small seed; keep humid and do not bury deep.",
+          "rate": 0.5
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Slow establishment; strong light prevents legginess."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 42, "max": 70, "unit": "days" },
+          "description": "Dense mat forms; trim tips to encourage branching."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "arugula",
+      "species": "Eruca vesicaria",
+      "description": "A fast-growing, peppery green also known as rocket. Adds a spicy bite to salads and pizzas.",
+      "img": null,
+      "icon_img": "arugula.webp",
+      "harvest": { "duration": { "max": 5, "min": 3, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "105g (3.7 oz)" },
+      "hardinessZone": { "max": 11, "min": 3 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 3, "max": 7, "unit": "days" },
+          "description": "Very quick sprout; prefers cooler temps.",
+          "rate": 0.9
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 7, "max": 10, "unit": "days" },
+          "description": "Baby leaves expand quickly; start thinning/spacing."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 10, "max": 21, "unit": "days" },
+          "description": "Fast leaf production; harvest young for milder flavor."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "mustard greens",
+      "species": "Brassica juncea",
+      "description": "Spicy, bold-flavored leaves that bring a wasabi-like kick to salads and southern-style dishes.",
+      "img": null,
+      "icon_img": "mustardgreens.webp",
+      "harvest": { "duration": { "max": 6, "min": 4, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "154g (5.4 oz)" },
+      "hardinessZone": { "max": 11, "min": 6 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 4, "max": 10, "unit": "days" },
+          "description": "Quick sprout; cooler temps improve leaf quality.",
+          "rate": 0.85
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 7, "max": 12, "unit": "days" },
+          "description": "True leaves appear; thin for larger leaves."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Leaf mass builds fast; harvest baby or mature leaves."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "watercress",
+      "species": "Nasturtium officinale",
+      "description": "An aquatic plant that thrives in flowing water. Known for its small, round leaves and peppery flavor.",
+      "img": null,
+      "icon_img": "watercress.webp",
+      "harvest": { "duration": { "max": 7, "min": 4, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "210g (7.4 oz)" },
+      "hardinessZone": { "max": 11, "min": 3 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "Sprouts in ~1–2 weeks; keep very moist/humid.",
+          "rate": 0.7
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 7, "max": 12, "unit": "days" },
+          "description": "Creeping stems begin; keep light moderate to strong."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Dense leafy growth; harvest by trimming tops to regrow."
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "name": "stevia",
+      "species": "Stevia rebaudiana",
+      "description": "A natural sweetener plant. The leaves are incredibly sweet and can be used as a zero-calorie sugar substitute.",
+      "img": null,
+      "icon_img": "stevia.webp",
+      "harvest": { "duration": { "max": 14, "min": 10, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "42g (1.5 oz)" },
+      "hardinessZone": { "max": 11, "min": 9 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 10, "max": 21, "unit": "days" },
+          "description": "Light aids germination; keep warm and humid.",
+          "rate": 0.45
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 14, "max": 21, "unit": "days" },
+          "description": "Delicate early growth; avoid strong EC early."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 35, "max": 56, "unit": "days" },
+          "description": "Leaf production phase; harvest before flowering for best sweetness."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 10, "max": 21, "unit": "days" },
+          "description": "Short days can trigger blooms; leaf quality may drop."
+        },
+        null
+      ]
+    },
+    {
+      "name": "lavender",
+      "species": "Lavandula",
+      "description": "A famously fragrant herb with silvery foliage and purple flower spikes. Used for tea, oils, and scenting.",
+      "img": null,
+      "icon_img": "lavender.webp",
+      "harvest": { "duration": { "max": 24, "min": 12, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "21g (0.7 oz)" },
+      "hardinessZone": { "max": 9, "min": 5 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Slow germination; consistent moisture is critical.",
+          "rate": 0.4
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 21, "max": 42, "unit": "days" },
+          "description": "Very slow early growth; avoid overwatering."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 56, "max": 112, "unit": "days" },
+          "description": "Woody framework develops; most harvest comes after establishment."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 14, "max": 35, "unit": "days" },
+          "description": "Flower spikes form and open; harvest buds for aroma."
+        },
+        null
+      ]
+    },
+    {
+      "name": "calendula",
+      "species": "Calendula officinalis",
+      "description": "Bright yellow-orange edible flowers. Petals add a saffron-like color to dishes and have medicinal properties.",
+      "img": null,
+      "icon_img": "calendula.webp",
+      "harvest": { "duration": { "max": 12, "min": 8, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "35g (1.2 oz)" },
+      "hardinessZone": { "max": 11, "min": 2 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "Quick sprout; keep evenly moist.",
+          "rate": 0.7
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 10, "max": 14, "unit": "days" },
+          "description": "Rosette begins; avoid overcrowding."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Bushy growth; pinch to encourage more flower stems."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 21, "max": 42, "unit": "days" },
+          "description": "Continuous blooms; deadhead to keep flowers coming."
+        },
+        null
+      ]
+    },
+    {
+      "name": "nasturtium",
+      "species": "Tropaeolum",
+      "description": "Cheery, fast-growing plants with shield-shaped leaves and bright edible flowers with a peppery bite.",
+      "img": null,
+      "icon_img": "nasturtium.webp",
+      "harvest": { "duration": { "max": 10, "min": 6, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "49g (1.7 oz)" },
+      "hardinessZone": { "max": 11, "min": 2 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 7, "max": 12, "unit": "days" },
+          "description": "Large seed; keep media moist but not saturated.",
+          "rate": 0.8
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 10, "max": 14, "unit": "days" },
+          "description": "Round leaves appear; prefers not to be overfed early."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Trailing growth; train around tower space."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 21, "max": 42, "unit": "days" },
+          "description": "Edible blooms; pick regularly to promote more flowers."
+        },
+        null
+      ]
+    },
+    {
+      "name": "bush beans",
+      "species": "Phaseolus vulgaris",
+      "description": "Compact bean plants that stand upright. They produce tender green pods without the need for a trellis.",
+      "img": null,
+      "icon_img": "bushbeans.webp",
+      "harvest": { "duration": { "max": 9, "min": 7, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "84g (3 oz)" },
+      "hardinessZone": { "max": 11, "min": 3 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 7, "max": 10, "unit": "days" },
+          "description": "Quick sprout; keep warm and evenly moist.",
+          "rate": 0.85
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "First trifoliate leaves; avoid root disturbance."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Bush fills out; begins forming buds."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "White/purple flowers; pollination usually self-contained."
+        },
+        {
+          "stage": "fruiting",
+          "duration": { "min": 10, "max": 21, "unit": "days" },
+          "description": "Pods elongate quickly; harvest young/tender for best quality."
+        }
+      ]
+    },
+    {
+      "name": "cucumber",
+      "species": "Cucumis sativus",
+      "description": "Fast-growing vines that produce crisp, refreshing fruits. Best harvested when small and tender.",
+      "img": null,
+      "icon_img": "cucumber.webp",
+      "harvest": { "duration": { "max": 10, "min": 8, "unit": "week" } },
+      "yield": { "unit": "per slot", "label": "280g (9.9 oz)" },
+      "hardinessZone": { "max": 11, "min": 4 },
+      "growth_stages": [
+        {
+          "stage": "germination",
+          "duration": { "min": 3, "max": 10, "unit": "days" },
+          "description": "Sprouts fast in warmth; avoid chilling.",
+          "rate": 0.8
+        },
+        {
+          "stage": "seedling",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "First true leaves; prepare trellis/support early."
+        },
+        {
+          "stage": "vegetative",
+          "duration": { "min": 14, "max": 28, "unit": "days" },
+          "description": "Vines run fast; train vertically for airflow and yield."
+        },
+        {
+          "stage": "flowering",
+          "duration": { "min": 7, "max": 14, "unit": "days" },
+          "description": "Male then female flowers; pollination may be needed indoors."
+        },
+        {
+          "stage": "fruiting",
+          "duration": { "min": 8, "max": 15, "unit": "days" },
+          "description": "Cucumbers size quickly after pollination; harvest frequently to keep producing."
+        }
+      ]
+    }
+  ]
+}

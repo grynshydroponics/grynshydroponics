@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, Leaf, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { PhotoPickerModal } from '@/components/ui/PhotoPickerModal'
 import { PLANT_LIBRARY, getPlantIconUrl, type PlantOption } from '@/data/plants'
+import { resolvePlantAssetUrl } from '@/utils/assetUrl'
 import { useTowerContext } from '@/context/TowerContext'
 import type { PodRecord, GrowthStage } from '@/db'
 import { capitalizeWords } from '@/utils/capitalize'
@@ -78,7 +79,7 @@ export function PodDetail({ pod }: PodDetailProps) {
   const editAreaRef = useRef<HTMLDivElement>(null)
 
   const plant = PLANT_LIBRARY.find((p) => p.id === pod.plantId)
-  const plantIconUrl = plant ? getPlantIconUrl(plant) : null
+  const plantIconUrl = plant ? resolvePlantAssetUrl(getPlantIconUrl(plant)) : null
   const displayImageUrl = pod.photoDataUrl ?? plantIconUrl
 
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { ChevronDown, Leaf } from 'lucide-react'
 import { PLANT_LIBRARY, getPlantIconUrl, type PlantOption } from '@/data/plants'
+import { resolvePlantAssetUrl } from '@/utils/assetUrl'
 
 const PLANT_ICON_SIZE = 'h-6 w-6'
 
@@ -95,7 +96,7 @@ function PlantCircle({
   plant: PlantOption
   sizeClass: string
 }) {
-  const iconUrl = getPlantIconUrl(plant)
+  const iconUrl = resolvePlantAssetUrl(getPlantIconUrl(plant))
   const [imgError, setImgError] = useState(false)
   const showImg = iconUrl && !imgError
   return (

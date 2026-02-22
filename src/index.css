@@ -5,9 +5,11 @@
 @layer base {
   html {
     @apply antialiased;
+    overscroll-behavior-y: none;
   }
   body {
     @apply bg-slate-900 text-slate-100 min-h-screen min-h-[100dvh];
+    overscroll-behavior-y: none;
   }
 }
 

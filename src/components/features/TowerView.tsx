@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Leaf, Plus } from 'lucide-react'
 import type { PodRecord, TowerRecord } from '@/db'
 import { PLANT_LIBRARY, getPlantIconUrl } from '@/data/plants'
+import { resolvePlantAssetUrl } from '@/utils/assetUrl'
 import { capitalizeWords } from '@/utils/capitalize'
 
 interface TowerViewProps {
@@ -37,7 +38,7 @@ export function TowerView({ tower, pods }: TowerViewProps) {
         ) : (
           podsBySlot.map((pod) => {
             const plant = PLANT_LIBRARY.find((p) => p.id === pod.plantId)
-            const iconUrl = plant ? getPlantIconUrl(plant) : null
+            const iconUrl = plant ? resolvePlantAssetUrl(getPlantIconUrl(plant)) : null
             const displayUrl = pod.photoDataUrl ?? iconUrl
             const stageName = stageLabel(pod.growthStage)
             const durationStr = stageDurationLabel(pod.growthStage, plant)

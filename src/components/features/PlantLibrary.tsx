@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Leaf } from 'lucide-react'
 import { PLANT_LIBRARY, getPlantIconUrl } from '@/data/plants'
+import { resolvePlantAssetUrl } from '@/utils/assetUrl'
 export function PlantLibrary() {
   return (
     <div className="px-6 py-6">
@@ -10,7 +11,7 @@ export function PlantLibrary() {
       </p>
       <ul className="mt-6 grid grid-cols-2 gap-3">
         {PLANT_LIBRARY.map((plant) => {
-          const iconUrl = getPlantIconUrl(plant)
+          const iconUrl = resolvePlantAssetUrl(getPlantIconUrl(plant))
           return (
             <li key={plant.id}>
               <Link

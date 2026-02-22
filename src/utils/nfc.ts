@@ -99,7 +99,7 @@ export function scanNfcTag(options?: { signal?: AbortSignal }): Promise<string> 
           if (err.name === 'AbortError') {
             reject(
               new NfcScanError(
-                'Scan stopped. If Android showed "New tag scanned", the system took the tag—try again and choose Chrome or Gryns if Android asks which app to use.',
+                'Android took the tag and showed "New tag scanned / empty tag" without asking. To fix: go to Settings → Apps → Default apps (or open the app that handles tags) and clear its default for NFC/tag. Then scan again—Android should ask "Open with" and you can choose Chrome or Gryns.',
                 'NFC_ABORTED',
                 err
               )
@@ -117,7 +117,7 @@ export function scanNfcTag(options?: { signal?: AbortSignal }): Promise<string> 
     signal?.addEventListener?.('abort', () => {
       reject(
         new NfcScanError(
-          'Scan stopped. If Android showed "New tag scanned", the system took the tag—try again and choose Chrome or Gryns if Android asks which app to use.',
+          'Android took the tag and showed "New tag scanned / empty tag" without asking. To fix: go to Settings → Apps → Default apps (or the app that handles tags) and clear its default for NFC. Then scan again and choose Chrome or Gryns when asked.',
           'NFC_ABORTED'
         )
       )

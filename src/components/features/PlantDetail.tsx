@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { Leaf } from 'lucide-react'
 import { PLANT_LIBRARY, getPlantIconUrl, type GrowthStageEntry } from '@/data/plants'
+import { resolvePlantAssetUrl } from '@/utils/assetUrl'
 function formatDuration(duration?: { min?: number; max?: number; unit?: string }): string {
   if (duration?.min == null && duration?.max == null) return '—'
   const min = duration?.min ?? duration?.max
@@ -29,7 +30,7 @@ export function PlantDetail() {
     )
   }
 
-  const iconUrl = getPlantIconUrl(plant)
+  const iconUrl = resolvePlantAssetUrl(getPlantIconUrl(plant))
   const displayImageUrl = iconUrl
 
   return (

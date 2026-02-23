@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Camera, Nfc } from 'lucide-react'
+import { ArrowLeft, Camera, QrCode } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { PhotoPickerModal } from '@/components/ui/PhotoPickerModal'
@@ -8,7 +8,8 @@ import { Select } from '@/components/ui/Select'
 import { PlantSelect } from '@/components/ui/PlantSelect'
 import { PLANT_LIBRARY } from '@/data/plants'
 import { useTowerContext } from '@/context/TowerContext'
-import { scanNfcTag, formatTag, isNfcSupported, NfcScanError } from '@/utils/nfc'
+import { isQrSupported } from '@/utils/qr'
+import { QrScanPromptModal } from '@/components/features/QrScanPromptModal'
 
 export function AddPodToTower() {
   const { towerId } = useParams<{ towerId: string }>()
@@ -25,10 +26,8 @@ export function AddPodToTower() {
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null)
   const [photoModalOpen, setPhotoModalOpen] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [nfcPodId, setNfcPodId] = useState<string | null>(null)
-  const [nfcScanning, setNfcScanning] = useState(false)
-  const [nfcFormatting, setNfcFormatting] = useState(false)
-  const [nfcError, setNfcError] = useState<string | null>(null)
+  const [scanPodId, setScanPodId] = useState<string | null>(null)
+  const [qrPromptOpen, setQrPromptOpen] = useState(false)
 
   if (!tower) {
     return (
@@ -68,27 +67,13 @@ export function AddPodToTower() {
     }
   }, [tower?.id, defaultSlot, slotNumber, availableSlots])
 
-  const handleScanTag = async () => {
-    setNfcError(null)
-    setNfcScanning(true)
-    try {
-      const serial = await scanNfcTag()
-      setNfcPodId(serial)
-    } catch (err) {
-      const msg = err instanceof NfcScanError ? err.message : 'Scan failed.'
-      setNfcError(msg)
-    } finally {
-      setNfcScanning(false)
-    }
-  }
-
   const handleSave = async () => {
     const chosenSlot = slotNumberValid ? slotNumber : defaultSlot
     if (!plantId || !plantName.trim() || chosenSlot == null) return
     setSaving(true)
     try {
       await addPod({
-        ...(nfcPodId && { id: nfcPodId }),
+        ...(scanPodId && { id: scanPodId }),
         towerId: tower.id,
         plantId,
         plantName: plantName.trim(),
@@ -186,61 +171,43 @@ export function AddPodToTower() {
           />
         </div>
 
-        {isNfcSupported() && (
+        {isQrSupported() && (
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Link NFC tag (optional)</label>
+            <label className="mb-1 block text-sm font-medium text-slate-400">Link QR code (optional)</label>
             <p className="mb-2 text-xs text-slate-500">
-              Scan a tag to use its ID for this pod. If Android shows &quot;empty tag&quot;, tap Format empty tag first.
+              Scan the QR code on the pod label to use its ID for this pod.
             </p>
-            {nfcPodId ? (
+            {scanPodId ? (
               <div className="flex items-center justify-between gap-2 rounded-lg border border-slate-600 bg-surface-muted px-3 py-2">
-                <span className="truncate text-sm text-slate-300" title={nfcPodId}>Tag: {nfcPodId}</span>
+                <span className="truncate text-sm text-slate-300" title={scanPodId}>Code: {scanPodId}</span>
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => { setNfcPodId(null); setNfcError(null); }}
+                  onClick={() => setScanPodId(null)}
                 >
                   Clear
                 </Button>
               </div>
             ) : (
-              <>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="w-full"
-                  onClick={handleScanTag}
-                  disabled={nfcScanning || nfcFormatting}
-                >
-                  <Nfc className="mr-2 h-4 w-4" />
-                  {nfcScanning ? 'Hold device near tag...' : 'Scan tag'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full text-slate-400"
-                  onClick={async () => {
-                    setNfcError(null)
-                    setNfcFormatting(true)
-                    try {
-                      await formatTag()
-                      setNfcError(null)
-                    } catch (e) {
-                      setNfcError(e instanceof NfcScanError ? e.message : 'Format failed.')
-                    } finally {
-                      setNfcFormatting(false)
-                    }
-                  }}
-                  disabled={nfcScanning || nfcFormatting}
-                >
-                  {nfcFormatting ? 'Hold tag to device…' : 'Format empty tag'}
-                </Button>
-                {nfcError && <p className="mt-1 text-sm text-red-400">{nfcError}</p>}
-              </>
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full"
+                onClick={() => setQrPromptOpen(true)}
+              >
+                <QrCode className="mr-2 h-4 w-4" />
+                Scan QR code
+              </Button>
             )}
           </div>
         )}
+        <QrScanPromptModal
+          open={qrPromptOpen}
+          onClose={() => setQrPromptOpen(false)}
+          onResult={(value) => { setScanPodId(value); setQrPromptOpen(false); }}
+          title="Scan pod QR code"
+        />
 
         <Button
           className="w-full"

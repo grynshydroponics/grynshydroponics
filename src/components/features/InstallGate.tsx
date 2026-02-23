@@ -171,7 +171,7 @@ export function InstallGate({ children }: { children: React.ReactNode }) {
       <h1 className="mt-6 text-2xl font-semibold text-slate-100">Gryns</h1>
       <p className="mt-2 text-slate-400">Hydroponic Tower Tracker</p>
       <p className="mt-8 max-w-sm text-slate-500">
-        Add Gryns to your home screen to track your towers and pods, scan NFC tags, and use the app offline.
+        Add Gryns to your home screen to track your towers and pods, scan QR codes, and use the app offline.
       </p>
       {installPrompt ? (
         <Button

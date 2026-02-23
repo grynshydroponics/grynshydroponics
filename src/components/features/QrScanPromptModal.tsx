@@ -59,10 +59,8 @@ export function QrScanPromptModal({ open, onClose, onResult, title = 'Scan QR co
       .then((decoded) => {
         setScanning(false)
         setScannedValue(decoded)
-        confirmTimeoutRef.current = setTimeout(() => {
-          onResult(decoded)
-          onClose()
-        }, 800)
+        onResult(decoded)
+        confirmTimeoutRef.current = setTimeout(() => onClose(), 800)
       })
       .catch((err) => {
         if (err instanceof QrScanError && err.code === 'QR_ABORTED') return
@@ -112,7 +110,7 @@ export function QrScanPromptModal({ open, onClose, onResult, title = 'Scan QR co
           {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
 
           <div className="mt-6 flex w-full flex-col gap-2">
-            {supported && !scanning && (
+            {supported && !scanning && !scannedValue && (
               <Button className="w-full" onClick={startScan}>
                 Scan QR code
               </Button>
@@ -121,6 +119,9 @@ export function QrScanPromptModal({ open, onClose, onResult, title = 'Scan QR co
               <Button variant="secondary" className="w-full" onClick={stopScan}>
                 Cancel
               </Button>
+            )}
+            {scannedValue && (
+              <p className="text-center text-xs text-slate-500">Code set. Closing in a moment…</p>
             )}
             <Button variant="secondary" className="w-full" onClick={onClose}>
               Close

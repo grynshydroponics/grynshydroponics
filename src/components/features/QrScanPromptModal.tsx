@@ -14,14 +14,17 @@ interface QrScanPromptModalProps {
 
 export function QrScanPromptModal({ open, onClose, onResult, title = 'Scan QR code' }: QrScanPromptModalProps) {
   const [scanning, setScanning] = useState(false)
+  const [scannedValue, setScannedValue] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const confirmTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const supported = isQrSupported()
 
   const startScan = () => {
     if (!supported) return
     setError(null)
+    setScannedValue(null)
     setScanning(true)
     abortRef.current = new AbortController()
   }
@@ -34,26 +37,45 @@ export function QrScanPromptModal({ open, onClose, onResult, title = 'Scan QR co
     setScanning(false)
   }
 
+  // When modal opens, start camera immediately (no extra "Scan QR code" click)
   useEffect(() => {
     if (!open) {
       stopScan()
+      setScannedValue(null)
+      return
     }
-  }, [open])
+    if (supported) {
+      setError(null)
+      setScannedValue(null)
+      setScanning(true)
+      abortRef.current = new AbortController()
+    }
+  }, [open, supported])
 
   useEffect(() => {
     if (!open || !scanning || !abortRef.current) return
     const signal = abortRef.current.signal
     scanQrCode(SCANNER_ELEMENT_ID, { signal })
       .then((decoded) => {
-        onResult(decoded)
-        onClose()
+        setScanning(false)
+        setScannedValue(decoded)
+        confirmTimeoutRef.current = setTimeout(() => {
+          onResult(decoded)
+          onClose()
+        }, 800)
       })
       .catch((err) => {
         if (err instanceof QrScanError && err.code === 'QR_ABORTED') return
         setError(err instanceof QrScanError ? err.message : 'Scan failed.')
       })
       .finally(() => setScanning(false))
-    return () => abortRef.current?.abort()
+    return () => {
+      abortRef.current?.abort()
+      if (confirmTimeoutRef.current) {
+        clearTimeout(confirmTimeoutRef.current)
+        confirmTimeoutRef.current = null
+      }
+    }
   }, [open, scanning, onResult, onClose])
 
   if (!open) return null
@@ -74,6 +96,8 @@ export function QrScanPromptModal({ open, onClose, onResult, title = 'Scan QR co
             <p className="mt-2 text-sm text-slate-400">
               Camera is not available. Use HTTPS and allow camera access.
             </p>
+          ) : scannedValue ? (
+            <p className="mt-4 font-medium text-green-400">Scanned: {scannedValue}</p>
           ) : scanning ? (
             <>
               <p className="mt-2 text-sm text-slate-400">Point your camera at the QR code.</p>

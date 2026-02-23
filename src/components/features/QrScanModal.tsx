@@ -17,6 +17,7 @@ export function QrScanModal({ open, onClose }: QrScanModalProps) {
   const { pods } = useTowerContext()
   const [status, setStatus] = useState<'idle' | 'scanning' | 'found' | 'not_found' | 'error'>('idle')
   const [message, setMessage] = useState<string>('')
+  const [lastScanned, setLastScanned] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
 
   const supported = isQrSupported()
@@ -25,6 +26,7 @@ export function QrScanModal({ open, onClose }: QrScanModalProps) {
     if (!supported) return
     setStatus('scanning')
     setMessage('')
+    setLastScanned(null)
     abortRef.current = new AbortController()
   }
 
@@ -37,15 +39,26 @@ export function QrScanModal({ open, onClose }: QrScanModalProps) {
     setMessage('')
   }
 
+  // When modal opens, start camera immediately (no "Start scan" step)
   useEffect(() => {
-    if (!open) stopScan()
-  }, [open])
+    if (!open) {
+      stopScan()
+      return
+    }
+    if (supported) {
+      setMessage('')
+      setLastScanned(null)
+      setStatus('scanning')
+      abortRef.current = new AbortController()
+    }
+  }, [open, supported])
 
   useEffect(() => {
     if (!open || status !== 'scanning' || !abortRef.current) return
     const signal = abortRef.current.signal
     scanQrCode(SCANNER_ELEMENT_ID, { signal })
       .then((decoded) => {
+        setLastScanned(decoded)
         const pod = pods.find((p) => p.id === decoded)
         if (pod) {
           setStatus('found')
@@ -95,7 +108,10 @@ export function QrScanModal({ open, onClose }: QrScanModalProps) {
               />
             </>
           ) : status === 'not_found' ? (
-            <p className="mt-2 text-sm text-slate-400">{message}</p>
+            <>
+              <p className="mt-2 font-medium text-green-400">Scanned: {lastScanned}</p>
+              <p className="mt-1 text-sm text-slate-400">{message}</p>
+            </>
           ) : status === 'error' ? (
             <p className="mt-2 text-sm text-red-400">{message}</p>
           ) : (

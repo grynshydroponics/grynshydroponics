@@ -79,8 +79,9 @@ export function scanQrCode(
           cameraId,
           config,
           (decodedText) => {
-            cleanup()
+            // Resolve first so React can update UI; then stop camera so we don't block or throw before resolve
             settle(() => resolve(decodedText))
+            setTimeout(() => cleanup(), 0)
           },
           () => {
             // Ignore continuous scan errors (no QR in frame)

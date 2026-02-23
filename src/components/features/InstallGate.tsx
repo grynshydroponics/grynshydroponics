@@ -15,6 +15,9 @@ function tryCloseWindow() {
   window.close()
 }
 
+/** Minimum ms to wait after appinstalled before showing success/close (re-install can fire appinstalled before OS finishes). */
+const POST_INSTALL_DELAY_MS = 5000
+
 export function InstallGate({ children }: { children: React.ReactNode }) {
   const isPWA = isRunningAsPWA()
   const skipped = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(SKIP_GATE_KEY) === '1'
@@ -42,13 +45,19 @@ export function InstallGate({ children }: { children: React.ReactNode }) {
   }, [isPWA, skipped])
 
   useEffect(() => {
-    const onInstalled = () => {
-      setInstallAccepted(false)
-      setInstallJustFinished(true)
-      tryCloseWindow()
+    const delayRef = { current: 0 }
+    const handler = () => {
+      delayRef.current = window.setTimeout(() => {
+        setInstallAccepted(false)
+        setInstallJustFinished(true)
+        tryCloseWindow()
+      }, POST_INSTALL_DELAY_MS)
     }
-    window.addEventListener('appinstalled', onInstalled)
-    return () => window.removeEventListener('appinstalled', onInstalled)
+    window.addEventListener('appinstalled', handler)
+    return () => {
+      window.removeEventListener('appinstalled', handler)
+      if (delayRef.current) window.clearTimeout(delayRef.current)
+    }
   }, [])
 
   // If appinstalled never fires (e.g. older browser), show success after 15s

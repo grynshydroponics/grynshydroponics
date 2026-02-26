@@ -23,7 +23,7 @@ export interface PodRecord {
   plantImageUrl: string | null
 }
 
-export type GrowthStage = 'germination' | 'sprouted' | 'growing' | 'harvest_ready' | 'harvested'
+export type GrowthStage = 'germination' | 'sprouted' | 'growing' | 'harvest_ready' | 'fruiting' | 'harvested'
 
 export class GrynsDB extends Dexie {
   towers!: Table<TowerRecord, string>

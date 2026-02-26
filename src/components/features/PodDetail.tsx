@@ -9,22 +9,51 @@ import { useTowerContext } from '@/context/TowerContext'
 import type { PodRecord, GrowthStage } from '@/db'
 import { capitalizeWords } from '@/utils/capitalize'
 
-const inlineInputClass =
-  'form-inline-control min-w-0 flex-1 bg-transparent border-none p-0 text-slate-100 focus:outline-none focus:ring-0 focus:border-none'
+const STAGE_ORDER: GrowthStage[] = ['germination', 'sprouted', 'growing', 'harvest_ready', 'fruiting', 'harvested']
 
-const STAGE_ORDER: GrowthStage[] = ['germination', 'sprouted', 'growing', 'harvest_ready', 'harvested']
-
-const STAGE_BUTTON_LABELS: Record<GrowthStage, string> = {
-  germination: "It sprouted!",
-  sprouted: "It has green leaves!",
-  growing: "It's flowering!",
-  harvest_ready: "Harvested",
-  harvested: "Harvested",
+function isLastPlantStage(stageKey: string | null, plant: PlantOption | undefined): boolean {
+  if (!stageKey || !plant?.growth_stages) return false
+  const stages = plant.growth_stages.filter((s): s is NonNullable<typeof s> => s != null)
+  const last = stages[stages.length - 1]
+  return last?.stage === stageKey
 }
 
-function nextStage(current: GrowthStage): GrowthStage | null {
+/**
+ * Button label by plant stage. Sequence e.g. for bell pepper:
+ * It sprouted! → It has green leaves! → It's flowering! → Fruit set! → Time to Harvest → (greyed) Harvested
+ */
+function getAdvanceLabelForPlantStage(
+  currentPlantStage: string | null,
+  plant: PlantOption | undefined,
+  nextPodStage: GrowthStage | null
+): string | null {
+  if (!nextPodStage || !currentPlantStage) return null
+  const hasStage = (key: string) => plant?.growth_stages?.some((s) => s?.stage === key) ?? false
+  if (nextPodStage === 'harvested' && isLastPlantStage(currentPlantStage, plant)) return 'Time to Harvest'
+  switch (currentPlantStage) {
+    case 'germination':
+      return "It sprouted!"
+    case 'seedling':
+      return "It has green leaves!"
+    case 'vegetative':
+      return hasStage('flowering') ? "It's flowering!" : 'Time to Harvest'
+    case 'flowering':
+      return hasStage('fruiting') ? "Fruit set!" : 'Time to Harvest'
+    case 'fruiting':
+      return 'Time to Harvest'
+    default:
+      return null
+  }
+}
+
+/** Next pod stage. Skips harvest_ready/fruiting when plant has no flowering/fruiting (e.g. basil: vegetative → harvested). */
+function nextStage(current: GrowthStage, plant: PlantOption | undefined): GrowthStage | null {
   const i = STAGE_ORDER.indexOf(current)
-  return i < STAGE_ORDER.length - 1 ? STAGE_ORDER[i + 1] : null
+  if (i >= STAGE_ORDER.length - 1) return null
+  const hasStage = (key: string) => plant?.growth_stages?.some((s) => s?.stage === key) ?? false
+  if (current === 'growing' && !hasStage('flowering')) return 'harvested'
+  if (current === 'harvest_ready' && !hasStage('fruiting')) return 'harvested'
+  return STAGE_ORDER[i + 1]
 }
 
 /** Map pod growth stage to plant library growth_stages key for duration lookup */
@@ -32,8 +61,27 @@ const POD_STAGE_TO_PLANT_STAGE: Record<GrowthStage, string | null> = {
   germination: 'germination',
   sprouted: 'seedling',
   growing: 'vegetative',
-  harvest_ready: 'flowering', // show flowering duration; some plants have fruiting instead
-  harvested: null,
+  harvest_ready: 'flowering',
+  fruiting: 'fruiting',
+  harvested: 'fruiting',
+}
+
+/** Which plant stage to highlight. When harvested, use the plant's last growth stage (e.g. vegetative for basil). */
+function getHighlightedPlantStage(podStage: GrowthStage, plant: PlantOption | undefined): string | null {
+  if (podStage === 'harvested' && plant?.growth_stages) {
+    const stages = plant.growth_stages.filter((s): s is NonNullable<typeof s> => s != null)
+    const last = stages[stages.length - 1]
+    return last?.stage ?? null
+  }
+  const map: Record<GrowthStage, string | null> = {
+    germination: 'germination',
+    sprouted: 'seedling',
+    growing: 'vegetative',
+    harvest_ready: 'flowering',
+    fruiting: 'fruiting',
+    harvested: 'fruiting',
+  }
+  return map[podStage] ?? null
 }
 
 function formatDuration(duration?: { min?: number; max?: number; unit?: string }): string {
@@ -63,6 +111,23 @@ function getDurationForPodStage(plant: PlantOption | undefined, podStage: Growth
   return '—'
 }
 
+/** Get the growth_stages entry for the pod's current stage (for description, etc.) */
+function getStageEntryForPod(plant: PlantOption | undefined, podStage: GrowthStage) {
+  if (!plant) return null
+  const stageKey = POD_STAGE_TO_PLANT_STAGE[podStage]
+  if (!stageKey) return null
+  if (podStage === 'germination') {
+    const entry = plant.growth_stages?.find((s) => s?.stage === 'germination')
+    return entry ?? null
+  }
+  const entry = plant.growth_stages?.find((s) => s?.stage === stageKey)
+  if (entry) return entry
+  if (podStage === 'harvest_ready') {
+    return plant.growth_stages?.find((s) => s?.stage === 'fruiting') ?? null
+  }
+  return null
+}
+
 interface PodDetailProps {
   pod: PodRecord
 }
@@ -72,7 +137,7 @@ export function PodDetail({ pod }: PodDetailProps) {
   const { towers, updatePod, updatePodStage, deletePod } = useTowerContext()
   const tower = towers.find((t) => t.id === pod.towerId)
   const towerLabel = tower != null ? `Tower ${tower.index + 1}` : 'Pod'
-  const [editing, setEditing] = useState<'slotNumber' | 'plantedAt' | null>(null)
+  const [editing, setEditing] = useState<'slotNumber' | null>(null)
   const [editValue, setEditValue] = useState('')
   const [saving, setSaving] = useState(false)
   const [photoModalOpen, setPhotoModalOpen] = useState(false)
@@ -81,6 +146,15 @@ export function PodDetail({ pod }: PodDetailProps) {
   const plant = PLANT_LIBRARY.find((p) => p.id === pod.plantId)
   const plantIconUrl = plant ? resolvePlantAssetUrl(getPlantIconUrl(plant)) : null
   const displayImageUrl = pod.photoDataUrl ?? plantIconUrl
+
+  // Lock body scroll so the pod screen doesn't drag up/down
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [])
 
   useEffect(() => {
     if (editing == null) return
@@ -98,25 +172,21 @@ export function PodDetail({ pod }: PodDetailProps) {
     navigate(`/tower/${pod.towerId}`, { replace: true })
   }
 
-  const next = nextStage(pod.growthStage)
-  const advanceLabel = next ? STAGE_BUTTON_LABELS[pod.growthStage] : null
+  const next = nextStage(pod.growthStage, plant)
+  const currentPlantStage = getHighlightedPlantStage(pod.growthStage, plant)
+  const advanceLabel = getAdvanceLabelForPlantStage(currentPlantStage, plant, next)
 
-  const startEdit = (field: 'slotNumber' | 'plantedAt', current: string) => {
-    setEditing(field)
+  const startEdit = (current: string) => {
+    setEditing('slotNumber')
     setEditValue(current)
   }
 
   const saveEdit = async () => {
-    if (!editing) return
+    if (editing !== 'slotNumber') return
     setSaving(true)
     try {
-      if (editing === 'slotNumber') {
-        const n = parseInt(editValue, 10)
-        if (!isNaN(n) && n >= 1) await updatePod(pod.id, { slotNumber: n })
-      } else if (editing === 'plantedAt') {
-        const ts = new Date(editValue).getTime()
-        if (!isNaN(ts)) await updatePod(pod.id, { plantedAt: ts })
-      }
+      const n = parseInt(editValue, 10)
+      if (!isNaN(n) && n >= 1) await updatePod(pod.id, { slotNumber: n })
     } finally {
       setSaving(false)
       setEditing(null)
@@ -128,11 +198,13 @@ export function PodDetail({ pod }: PodDetailProps) {
     setEditValue('')
   }
 
-  const plantedDateStr = new Date(pod.plantedAt).toISOString().slice(0, 10)
-
+  const navBottom = '3.5rem' // match AppLayout nav height; use env(safe-area-inset-bottom) if needed
   return (
-    <div className="min-h-screen pb-20">
-      <header className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-slate-700 bg-slate-900/95 px-4 py-3 backdrop-blur">
+    <div
+      className="fixed inset-0 z-10 flex flex-col overflow-hidden bg-slate-900"
+      style={{ paddingBottom: `max(${navBottom}, calc(${navBottom} + env(safe-area-inset-bottom, 0px)))` }}
+    >
+      <header className="flex shrink-0 items-center justify-between gap-2 border-b border-slate-700 bg-slate-900/95 px-4 py-3 backdrop-blur">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <Link to={`/tower/${pod.towerId}`} className="shrink-0 p-1 text-slate-400 hover:text-slate-100">
             <ArrowLeft className="h-6 w-6" />
@@ -149,8 +221,9 @@ export function PodDetail({ pod }: PodDetailProps) {
         </button>
       </header>
 
-      <div className="px-4 py-6">
-        <div className="mb-6 flex justify-center">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-3">
+        <div className="shrink-0">
+        <div className="relative mb-2 flex justify-center">
           <div className="relative h-40 w-40 shrink-0">
             <div className="pod-detail-hero-image absolute inset-0 border border-slate-700 bg-surface-muted">
               {displayImageUrl ? (
@@ -181,6 +254,32 @@ export function PodDetail({ pod }: PodDetailProps) {
               <Camera className="h-5 w-5" />
             </button>
           </div>
+          <div className="absolute top-0 right-0 -mr-4">
+            {editing === 'slotNumber' ? (
+              <div ref={editAreaRef} className="flex items-center gap-1.5 rounded-l-lg border border-slate-600 border-r-0 bg-slate-700 py-1.5 pl-3 pr-4 shadow-lg">
+                <input
+                  type="number"
+                  min={1}
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
+                  className="w-12 rounded border border-slate-600 bg-slate-800 px-2 py-1 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  autoFocus
+                  aria-label="Slot"
+                />
+                <Button size="sm" className="text-xs" onClick={saveEdit} disabled={saving}>Save</Button>
+                <Button variant="ghost" size="sm" className="text-xs" onClick={cancelEdit}>Cancel</Button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => startEdit(String(pod.slotNumber))}
+                className="rounded-l-lg bg-slate-700 py-1.5 pl-3 pr-4 text-sm font-medium text-slate-200 hover:bg-slate-600 hover:text-slate-100"
+              >
+                Slot {pod.slotNumber}
+              </button>
+            )}
+          </div>
         </div>
 
         <PhotoPickerModal
@@ -191,122 +290,99 @@ export function PodDetail({ pod }: PodDetailProps) {
           title="Pod photo"
         />
 
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-semibold text-slate-100">
+        <div className="mb-2 text-center">
+          <h1 className="text-xl font-semibold text-slate-100">
             {capitalizeWords(pod.plantName)}
           </h1>
           {plant?.species && (
             <p className="mt-1 text-sm italic text-slate-400">{plant.species}</p>
           )}
           {plant?.description && (
-            <p className="mt-2 max-w-md mx-auto px-6 py-2 text-sm text-slate-300 leading-relaxed">
+            <p className="mt-1.5 max-w-md mx-auto px-4 py-1 text-sm text-slate-300 leading-relaxed">
               {plant.description}
             </p>
           )}
 
-          {(plant?.harvest ?? plant?.yield) && (
-            <div className="mt-4 flex flex-wrap justify-center gap-8 text-center">
-              {plant?.harvest && (
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-slate-500">Harvest</p>
-                  <p className="mt-0.5 text-sm text-slate-300">
-                    {formatDuration(plant.harvest.duration)}
-                  </p>
-                </div>
-              )}
-              {plant?.yield && (
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-slate-500">Yield</p>
-                  <p className="mt-0.5 text-sm text-slate-300">
-                    {plant.yield.label ?? (plant.yield.value != null && plant.yield.unit != null
-                      ? `${plant.yield.value} ${plant.yield.unit}`
-                      : plant.yield.unit ?? '—')}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-3">
-          <div className="rounded-xl border border-slate-700 bg-surface p-3">
-            <p className="mb-0.5 text-xs uppercase tracking-wider text-slate-500">Slot</p>
-            {editing === 'slotNumber' ? (
-              <div ref={editAreaRef} className="flex h-8 flex-wrap items-center gap-2">
-                <input
-                  type="number"
-                  min={1}
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
-                  className={inlineInputClass}
-                  autoFocus
-                  aria-label="Slot"
-                />
-                <span className="flex shrink-0 items-center gap-1">
-                  <Button size="sm" className="form-inline-control text-xs" onClick={saveEdit} disabled={saving}>Save</Button>
-                  <Button variant="ghost" size="sm" className="form-inline-control text-xs" onClick={cancelEdit}>Cancel</Button>
-                </span>
+          <div className="mt-2 flex flex-wrap justify-center gap-4 text-center">
+            {plant?.harvest && (
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-slate-500">Harvest</p>
+                <p className="mt-0.5 text-xs text-slate-300">
+                  {formatDuration(plant.harvest.duration)}
+                </p>
               </div>
-            ) : (
-              <button
-                type="button"
-                className="form-inline-control w-full text-left text-slate-100 hover:underline"
-                onClick={() => startEdit('slotNumber', String(pod.slotNumber))}
-              >
-                Slot {pod.slotNumber}
-              </button>
             )}
-          </div>
-
-          <div className="rounded-xl border border-slate-700 bg-surface p-3">
-            <p className="mb-0.5 text-xs uppercase tracking-wider text-slate-500">Planted</p>
-            {editing === 'plantedAt' ? (
-              <div ref={editAreaRef} className="flex h-8 flex-wrap items-center gap-2">
-                <input
-                  type="date"
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
-                  className={inlineInputClass}
-                  autoFocus
-                  aria-label="Planted date"
-                />
-                <span className="flex shrink-0 items-center gap-1">
-                  <Button size="sm" className="form-inline-control text-xs" onClick={saveEdit} disabled={saving}>Save</Button>
-                  <Button variant="ghost" size="sm" className="form-inline-control text-xs" onClick={cancelEdit}>Cancel</Button>
-                </span>
+            {plant?.yield && (
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-slate-500">Yield</p>
+                <p className="mt-0.5 text-xs text-slate-300">
+                  {plant.yield.label ?? (plant.yield.value != null && plant.yield.unit != null
+                    ? `${plant.yield.value} ${plant.yield.unit}`
+                    : plant.yield.unit ?? '—')}
+                </p>
               </div>
-            ) : (
-              <button
-                type="button"
-                className="form-inline-control w-full text-left text-slate-100 hover:underline"
-                onClick={() => startEdit('plantedAt', plantedDateStr)}
-              >
+            )}
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-slate-500">Planted</p>
+              <p className="mt-0.5 text-xs text-slate-300">
                 {new Date(pod.plantedAt).toLocaleDateString()}
-              </button>
-            )}
-          </div>
-
-          <div className="rounded-xl border border-slate-700 bg-surface p-3">
-            <p className="mb-0.5 text-xs uppercase tracking-wider text-slate-500">Growth stage</p>
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-slate-100 capitalize">{pod.growthStage.replace(/_/g, ' ')}</p>
-              <p className="text-sm text-slate-400 shrink-0">
-                {getDurationForPodStage(plant, pod.growthStage)}
               </p>
             </div>
-            {advanceLabel && next && (
-              <Button
-                className="mt-2 w-full"
-                onClick={() => updatePodStage(pod.id, next)}
-              >
-                {advanceLabel}
-              </Button>
-            )}
           </div>
         </div>
+        </div>
+
+        <div className="mt-2 space-y-1">
+          <p className="mb-0.5 text-[10px] uppercase tracking-wider text-slate-500">Growth stages</p>
+          {(plant?.growth_stages?.filter((s): s is NonNullable<typeof s> => s != null) ?? []).map((entry) => {
+            const isCurrent = getHighlightedPlantStage(pod.growthStage, plant) === entry.stage
+            const durationStr = entry.duration ? formatDuration(entry.duration) : null
+            return (
+              <div
+                key={entry.stage}
+                className={`rounded-lg border px-2 py-1 ${
+                  isCurrent
+                    ? 'border-accent bg-accent/10'
+                    : 'border-slate-700 bg-surface'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className={`text-xs capitalize ${isCurrent ? 'font-medium text-accent' : 'text-slate-100'}`}>
+                    {entry.stage.replace(/_/g, ' ')}
+                  </p>
+                  {durationStr ? (
+                    <p className={`text-[11px] shrink-0 ${isCurrent ? 'text-accent/90' : 'text-slate-400'}`}>
+                      {durationStr}
+                    </p>
+                  ) : null}
+                </div>
+                {entry.description && (
+                  <p className={`mt-0.5 text-[11px] leading-snug ${isCurrent ? 'text-slate-200' : 'text-slate-300'}`}>
+                    {entry.description}
+                  </p>
+                )}
+              </div>
+            )
+          })}
+        </div>
       </div>
+
+      {pod.growthStage === 'harvested' ? (
+        <div className="shrink-0 bg-slate-900/95 px-4 py-3 pb-6 backdrop-blur">
+          <div className="flex w-full items-center justify-center rounded-lg border border-slate-600 bg-slate-800 py-3 text-sm font-medium text-slate-400">
+            Harvested
+          </div>
+        </div>
+      ) : advanceLabel && next ? (
+        <div className="shrink-0 bg-slate-900/95 px-4 py-3 pb-6 backdrop-blur">
+          <Button
+            className="w-full"
+            onClick={() => updatePodStage(pod.id, next)}
+          >
+            {advanceLabel}
+          </Button>
+        </div>
+      ) : null}
     </div>
   )
 }

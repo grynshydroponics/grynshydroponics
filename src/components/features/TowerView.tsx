@@ -1,9 +1,20 @@
 import { Link } from 'react-router-dom'
 import { Leaf, Plus } from 'lucide-react'
 import type { PodRecord, TowerRecord } from '@/db'
-import { PLANT_LIBRARY, getPlantIconUrl } from '@/data/plants'
+import type { GrowthStage } from '@/db'
+import { PLANT_LIBRARY, getPlantIconUrl, type PlantOption } from '@/data/plants'
 import { resolvePlantAssetUrl } from '@/utils/assetUrl'
 import { capitalizeWords } from '@/utils/capitalize'
+
+/** Map pod growth stage to plant library growth_stages key (matches JSON) */
+const POD_STAGE_TO_PLANT_STAGE: Record<GrowthStage, string | null> = {
+  germination: 'germination',
+  sprouted: 'seedling',
+  growing: 'vegetative',
+  harvest_ready: 'flowering',
+  fruiting: 'fruiting',
+  harvested: 'fruiting',
+}
 
 interface TowerViewProps {
   tower: TowerRecord
@@ -40,7 +51,7 @@ export function TowerView({ tower, pods }: TowerViewProps) {
             const plant = PLANT_LIBRARY.find((p) => p.id === pod.plantId)
             const iconUrl = plant ? resolvePlantAssetUrl(getPlantIconUrl(plant)) : null
             const displayUrl = pod.photoDataUrl ?? iconUrl
-            const stageName = stageLabel(pod.growthStage)
+            const stageName = stageLabelFromPlant(pod.growthStage)
             const durationStr = stageDurationLabel(pod.growthStage, plant)
             return (
             <li key={pod.id}>
@@ -79,7 +90,7 @@ export function TowerView({ tower, pods }: TowerViewProps) {
                   )}
                   <p className="mt-0.5 text-sm text-slate-400">
                     {stageName}
-                    <span className="ml-1">{durationStr}</span>
+                    {durationStr ? <span className="ml-1">{durationStr}</span> : null}
                   </p>
                 </div>
               </Link>
@@ -92,15 +103,11 @@ export function TowerView({ tower, pods }: TowerViewProps) {
   )
 }
 
-function stageLabel(s: PodRecord['growthStage']): string {
-  const labels: Record<PodRecord['growthStage'], string> = {
-    germination: 'Germination',
-    sprouted: 'Sprouted',
-    growing: 'Growing',
-    harvest_ready: 'Harvest ready',
-    harvested: 'Harvested',
-  }
-  return labels[s] ?? s
+/** Display label from plant library stage key (matches JSON: germination, seedling, vegetative, flowering, fruiting) */
+function stageLabelFromPlant(podStage: PodRecord['growthStage']): string {
+  const stageKey = POD_STAGE_TO_PLANT_STAGE[podStage]
+  if (!stageKey) return '—'
+  return stageKey.charAt(0).toUpperCase() + stageKey.slice(1).replace(/_/g, ' ')
 }
 
 function formatDuration(duration?: { min?: number; max?: number; unit?: string }): string {
@@ -114,12 +121,17 @@ function formatDuration(duration?: { min?: number; max?: number; unit?: string }
   return `${min}-${max} ${unit}`
 }
 
-function stageDurationLabel(
-  growthStage: PodRecord['growthStage'],
-  plant: { germination: { duration?: { min?: number; max?: number; unit?: string } } | null } | undefined
-): string {
-  if (growthStage === 'germination' && plant?.germination?.duration) {
+function stageDurationLabel(growthStage: PodRecord['growthStage'], plant: PlantOption | undefined): string {
+  if (!plant) return '—'
+  const stageKey = POD_STAGE_TO_PLANT_STAGE[growthStage]
+  if (!stageKey) return '' // harvested: no duration
+  if (growthStage === 'germination' && plant.germination?.duration)
     return formatDuration(plant.germination.duration)
+  const entry = plant.growth_stages?.find((s) => s?.stage === stageKey)
+  if (entry?.duration) return formatDuration(entry.duration)
+  if (growthStage === 'harvest_ready') {
+    const fruiting = plant.growth_stages?.find((s) => s?.stage === 'fruiting')
+    if (fruiting?.duration) return formatDuration(fruiting.duration)
   }
   return '—'
 }

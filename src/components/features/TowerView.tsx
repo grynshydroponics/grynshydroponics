@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Leaf, Plus } from 'lucide-react'
+import { CheckCircle, Leaf, Plus } from 'lucide-react'
 import type { PodRecord, TowerRecord } from '@/db'
 import type { GrowthStage } from '@/db'
 import { PLANT_LIBRARY, getPlantIconUrl, type PlantOption } from '@/data/plants'
@@ -51,8 +51,9 @@ export function TowerView({ tower, pods }: TowerViewProps) {
             const plant = PLANT_LIBRARY.find((p) => p.id === pod.plantId)
             const iconUrl = plant ? resolvePlantAssetUrl(getPlantIconUrl(plant)) : null
             const displayUrl = pod.photoDataUrl ?? iconUrl
-            const stageName = stageLabelFromPlant(pod.growthStage)
-            const durationStr = stageDurationLabel(pod.growthStage, plant)
+            const isHarvested = pod.growthStage === 'harvested'
+            const stageName = isHarvested ? 'Harvested' : stageLabelFromPlant(pod.growthStage)
+            const durationStr = isHarvested ? '' : stageDurationLabel(pod.growthStage, plant)
             return (
             <li key={pod.id}>
               <Link
@@ -88,7 +89,10 @@ export function TowerView({ tower, pods }: TowerViewProps) {
                   {plant?.species && (
                     <p className="text-sm text-slate-500 italic">{plant.species}</p>
                   )}
-                  <p className="mt-0.5 text-sm text-slate-400">
+                  <p className="mt-0.5 flex items-center gap-1.5 text-sm text-slate-400">
+                    {isHarvested && (
+                      <CheckCircle className="h-4 w-4 shrink-0 text-green-500" aria-hidden />
+                    )}
                     {stageName}
                     {durationStr ? <span className="ml-1">{durationStr}</span> : null}
                   </p>

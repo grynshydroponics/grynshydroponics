@@ -21,6 +21,8 @@ export interface PodRecord {
   perenualId: number | null
   /** Plant image URL from Perenual (or local) for display */
   plantImageUrl: string | null
+  /** QR code value linked to this pod (scan to open from nav); set when linking at add or on pod detail */
+  linkedQrCode: string | null
 }
 
 export type GrowthStage = 'germination' | 'sprouted' | 'growing' | 'harvest_ready' | 'fruiting' | 'harvested'
@@ -44,6 +46,11 @@ export class GrynsDB extends Dexie {
     this.version(3).upgrade((tx) =>
       tx.table('pods').toCollection().modify((pod: Record<string, unknown>) => {
         if (pod.growthStage === 'planted') pod.growthStage = 'germination'
+      })
+    )
+    this.version(4).upgrade((tx) =>
+      tx.table('pods').toCollection().modify((pod: Record<string, unknown>) => {
+        if (pod.linkedQrCode === undefined) pod.linkedQrCode = null
       })
     )
   }

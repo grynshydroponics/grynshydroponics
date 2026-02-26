@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Camera, Leaf, Trash2 } from 'lucide-react'
+import { ArrowLeft, Camera, CheckCircle, Leaf, Plus, Trash2, QrCode } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { PhotoPickerModal } from '@/components/ui/PhotoPickerModal'
 import { PLANT_LIBRARY, getPlantIconUrl, type PlantOption } from '@/data/plants'
@@ -8,6 +8,8 @@ import { resolvePlantAssetUrl } from '@/utils/assetUrl'
 import { useTowerContext } from '@/context/TowerContext'
 import type { PodRecord, GrowthStage } from '@/db'
 import { capitalizeWords } from '@/utils/capitalize'
+import { isQrSupported } from '@/utils/qr'
+import { QrScanPromptModal } from '@/components/features/QrScanPromptModal'
 
 const STAGE_ORDER: GrowthStage[] = ['germination', 'sprouted', 'growing', 'harvest_ready', 'fruiting', 'harvested']
 
@@ -56,16 +58,6 @@ function nextStage(current: GrowthStage, plant: PlantOption | undefined): Growth
   return STAGE_ORDER[i + 1]
 }
 
-/** Map pod growth stage to plant library growth_stages key for duration lookup */
-const POD_STAGE_TO_PLANT_STAGE: Record<GrowthStage, string | null> = {
-  germination: 'germination',
-  sprouted: 'seedling',
-  growing: 'vegetative',
-  harvest_ready: 'flowering',
-  fruiting: 'fruiting',
-  harvested: 'fruiting',
-}
-
 /** Which plant stage to highlight. When harvested, use the plant's last growth stage (e.g. vegetative for basil). */
 function getHighlightedPlantStage(podStage: GrowthStage, plant: PlantOption | undefined): string | null {
   if (podStage === 'harvested' && plant?.growth_stages) {
@@ -95,39 +87,6 @@ function formatDuration(duration?: { min?: number; max?: number; unit?: string }
   return `${min}-${max} ${unit}`
 }
 
-function getDurationForPodStage(plant: PlantOption | undefined, podStage: GrowthStage): string {
-  if (!plant) return '—'
-  const stageKey = POD_STAGE_TO_PLANT_STAGE[podStage]
-  if (!stageKey) return '' // harvested: no duration, no dash
-  if (podStage === 'germination' && plant.germination?.duration)
-    return formatDuration(plant.germination.duration)
-  const entry = plant.growth_stages?.find((s) => s?.stage === stageKey)
-  if (entry?.duration) return formatDuration(entry.duration)
-  // harvest_ready: try fruiting if no flowering
-  if (podStage === 'harvest_ready') {
-    const fruiting = plant.growth_stages?.find((s) => s?.stage === 'fruiting')
-    if (fruiting?.duration) return formatDuration(fruiting.duration)
-  }
-  return '—'
-}
-
-/** Get the growth_stages entry for the pod's current stage (for description, etc.) */
-function getStageEntryForPod(plant: PlantOption | undefined, podStage: GrowthStage) {
-  if (!plant) return null
-  const stageKey = POD_STAGE_TO_PLANT_STAGE[podStage]
-  if (!stageKey) return null
-  if (podStage === 'germination') {
-    const entry = plant.growth_stages?.find((s) => s?.stage === 'germination')
-    return entry ?? null
-  }
-  const entry = plant.growth_stages?.find((s) => s?.stage === stageKey)
-  if (entry) return entry
-  if (podStage === 'harvest_ready') {
-    return plant.growth_stages?.find((s) => s?.stage === 'fruiting') ?? null
-  }
-  return null
-}
-
 interface PodDetailProps {
   pod: PodRecord
 }
@@ -141,6 +100,7 @@ export function PodDetail({ pod }: PodDetailProps) {
   const [editValue, setEditValue] = useState('')
   const [saving, setSaving] = useState(false)
   const [photoModalOpen, setPhotoModalOpen] = useState(false)
+  const [qrPromptOpen, setQrPromptOpen] = useState(false)
   const editAreaRef = useRef<HTMLDivElement>(null)
 
   const plant = PLANT_LIBRARY.find((p) => p.id === pod.plantId)
@@ -211,15 +171,40 @@ export function PodDetail({ pod }: PodDetailProps) {
           </Link>
           <span className="text-lg font-medium text-slate-100">{towerLabel}</span>
         </div>
-        <button
-          type="button"
-          onClick={handleDelete}
-          className="shrink-0 p-1 text-slate-400 hover:text-red-400"
-          aria-label="Delete pod"
-        >
-          <Trash2 className="h-5 w-5" />
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          {isQrSupported() && pod.linkedQrCode == null && (
+            <button
+              type="button"
+              onClick={() => setQrPromptOpen(true)}
+              className="relative rounded-md p-1.5 text-slate-400 hover:bg-slate-700 hover:text-slate-100"
+              aria-label="Link QR code to pod"
+            >
+              <QrCode className="h-5 w-5" />
+              <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-accent text-[10px] font-medium text-white">
+                <Plus className="h-2.5 w-2.5" strokeWidth={3} />
+              </span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="p-1 text-slate-400 hover:text-red-400"
+            aria-label="Delete pod"
+          >
+            <Trash2 className="h-5 w-5" />
+          </button>
+        </div>
       </header>
+
+      <QrScanPromptModal
+        open={qrPromptOpen}
+        onClose={() => setQrPromptOpen(false)}
+        onResult={(value) => {
+          updatePod(pod.id, { linkedQrCode: value })
+          setQrPromptOpen(false)
+        }}
+        title="Scan pod QR code"
+      />
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-3">
         <div className="shrink-0">
@@ -248,7 +233,7 @@ export function PodDetail({ pod }: PodDetailProps) {
             <button
               type="button"
               onClick={() => setPhotoModalOpen(true)}
-              className="absolute bottom-0 right-0 z-[100] flex h-10 w-10 items-center justify-center rounded-full border border-slate-600 bg-slate-800/95 text-slate-100 shadow-lg backdrop-blur hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-accent"
+              className={`absolute bottom-0 right-0 flex h-10 w-10 items-center justify-center rounded-full border border-slate-600 bg-slate-800/95 text-slate-100 shadow-lg backdrop-blur hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-accent ${qrPromptOpen ? 'z-0' : 'z-[100]'}`}
               aria-label="Change pod photo"
             >
               <Camera className="h-5 w-5" />
@@ -369,7 +354,8 @@ export function PodDetail({ pod }: PodDetailProps) {
 
       {pod.growthStage === 'harvested' ? (
         <div className="shrink-0 bg-slate-900/95 px-4 py-3 pb-6 backdrop-blur">
-          <div className="flex w-full items-center justify-center rounded-lg border border-slate-600 bg-slate-800 py-3 text-sm font-medium text-slate-400">
+          <div className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-600 bg-slate-800 py-3 text-sm font-medium text-slate-400">
+            <CheckCircle className="h-4 w-4 shrink-0 text-green-500" aria-hidden />
             Harvested
           </div>
         </div>

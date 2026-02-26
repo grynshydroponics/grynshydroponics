@@ -59,7 +59,7 @@ export function QrScanModal({ open, onClose }: QrScanModalProps) {
     scanQrCode(SCANNER_ELEMENT_ID, { signal })
       .then((decoded) => {
         setLastScanned(decoded)
-        const pod = pods.find((p) => p.id === decoded)
+        const pod = pods.find((p) => p.id === decoded || p.linkedQrCode === decoded)
         if (pod) {
           setStatus('found')
           onClose()

@@ -73,7 +73,7 @@ export function AddPodToTower() {
     setSaving(true)
     try {
       await addPod({
-        ...(scanPodId && { id: scanPodId }),
+        ...(scanPodId && { id: scanPodId, linkedQrCode: scanPodId }),
         towerId: tower.id,
         plantId,
         plantName: plantName.trim(),

@@ -57,7 +57,6 @@ export function OnboardingStep6({ nfcPodId, onNfcChange, onFinish }: Props) {
         open={qrPromptOpen}
         onClose={() => setQrPromptOpen(false)}
         onResult={(value) => { onNfcChange(value); setQrPromptOpen(false); }}
-        title="Scan pod QR code"
       />
     </div>
   )

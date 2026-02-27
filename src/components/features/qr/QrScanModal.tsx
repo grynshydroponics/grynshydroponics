@@ -12,11 +12,9 @@ interface QrScanModalProps {
   onClose: () => void
   /** When set, returns scanned/entered value to parent (e.g. Add pod). When unset, looks up pod and navigates (scan to go to existing). */
   onResult?: (value: string) => void
-  /** Modal title. Defaults: "Scan to go to pod" when navigating, "Scan QR code" when onResult is set. */
-  title?: string
 }
 
-export function QrScanModal({ open, onClose, onResult, title }: QrScanModalProps) {
+export function QrScanModal({ open, onClose, onResult }: QrScanModalProps) {
   const navigate = useNavigate()
   const { pods } = useTowerContext()
   const isCallbackMode = onResult != null
@@ -32,7 +30,6 @@ export function QrScanModal({ open, onClose, onResult, title }: QrScanModalProps
   const confirmTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const supported = isQrSupported()
-  const displayTitle = title ?? (isCallbackMode ? 'Scan QR code' : 'Scan to go to pod')
 
   const submitCode = (value: string) => {
     const trimmed = value.trim()
@@ -160,8 +157,8 @@ export function QrScanModal({ open, onClose, onResult, title }: QrScanModalProps
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent/20 text-accent">
             <QrCode className="h-7 w-7" />
           </div>
-          <h2 className="mt-4 text-lg font-semibold text-slate-100">{displayTitle}</h2>
 
+          <div className="mt-2 min-w-[90%]">
           {!supported ? (
             <p className="mt-2 text-sm text-slate-400">
               Camera is not available. Use HTTPS and allow camera access to scan QR codes.
@@ -175,7 +172,7 @@ export function QrScanModal({ open, onClose, onResult, title }: QrScanModalProps
               </p>
               <div
                 id={SCANNER_ELEMENT_ID}
-                className="mt-4 mx-auto w-full max-w-xs overflow-hidden rounded-lg bg-black"
+                className="mt-4 min-h-[200px] w-full overflow-hidden rounded-lg bg-black"
               />
             </>
           ) : status === 'not_found' ? (
@@ -242,6 +239,7 @@ export function QrScanModal({ open, onClose, onResult, title }: QrScanModalProps
             <Button variant="secondary" className="w-full" onClick={onClose}>
               Close
             </Button>
+          </div>
           </div>
         </div>
       </div>

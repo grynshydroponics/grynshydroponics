@@ -134,7 +134,6 @@ function AddPodFormFields({
         open={qrPromptOpen}
         onClose={onQrClose}
         onResult={onQrResult}
-        title="Scan pod QR code"
       />
     </div>
   )

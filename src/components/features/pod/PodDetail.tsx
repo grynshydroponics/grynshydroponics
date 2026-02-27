@@ -195,7 +195,6 @@ export function PodDetail({ pod }: PodDetailProps) {
           updatePod(pod.id, { linkedQrCode: value })
           setQrPromptOpen(false)
         }}
-        title="Scan pod QR code"
       />
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-3">

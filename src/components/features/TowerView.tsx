@@ -18,7 +18,6 @@ export function TowerView({ tower, pods }: TowerViewProps) {
 
   return (
     <div className="space-y-4 px-4 py-6">
-      <p className="text-sm text-slate-500">Version {__APP_VERSION__}</p>
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold text-slate-100">Tower {tower.index + 1}</h1>
         <Link

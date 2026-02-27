@@ -197,9 +197,6 @@ export function QrScanModal({ open, onClose, onResult }: QrScanModalProps) {
 
           {showManualEntry && (
             <div className="mt-4 w-full">
-              <label className="mb-1 block text-left text-sm font-medium text-slate-400">
-                Or enter code manually
-              </label>
               <input
                 type="text"
                 value={inputValue}

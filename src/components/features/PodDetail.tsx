@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Camera, CheckCircle, Leaf, Plus, Trash2, QrCode } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Trash2 } from 'lucide-react'
+import { BOTTOM_NAV_HEIGHT } from '@/components/ui/BottomNav'
 import { Button } from '@/components/ui/Button'
-import { PhotoPickerModal } from '@/components/ui/PhotoPickerModal'
+import { LinkQrCodeButton } from '@/components/ui/LinkQrCodeButton'
+import { PodPhotoPicker } from '@/components/ui/PodPhotoPicker'
 import { PLANT_LIBRARY, getPlantIconUrl, type PlantOption } from '@/data/plants'
 import { resolvePlantAssetUrl } from '@/utils/assetUrl'
 import { useTowerContext } from '@/context/TowerContext'
@@ -99,7 +101,6 @@ export function PodDetail({ pod }: PodDetailProps) {
   const [editing, setEditing] = useState<'slotNumber' | null>(null)
   const [editValue, setEditValue] = useState('')
   const [saving, setSaving] = useState(false)
-  const [photoModalOpen, setPhotoModalOpen] = useState(false)
   const [qrPromptOpen, setQrPromptOpen] = useState(false)
   const editAreaRef = useRef<HTMLDivElement>(null)
 
@@ -158,7 +159,7 @@ export function PodDetail({ pod }: PodDetailProps) {
     setEditValue('')
   }
 
-  const navBottom = '3.5rem' // match AppLayout nav height; use env(safe-area-inset-bottom) if needed
+  const navBottom = BOTTOM_NAV_HEIGHT
   return (
     <div
       className="fixed inset-0 z-10 flex flex-col overflow-hidden bg-slate-900"
@@ -173,17 +174,7 @@ export function PodDetail({ pod }: PodDetailProps) {
         </div>
         <div className="flex shrink-0 items-center gap-1">
           {isQrSupported() && pod.linkedQrCode == null && (
-            <button
-              type="button"
-              onClick={() => setQrPromptOpen(true)}
-              className="relative rounded-md p-1.5 text-slate-400 hover:bg-slate-700 hover:text-slate-100"
-              aria-label="Link QR code to pod"
-            >
-              <QrCode className="h-5 w-5" />
-              <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-accent text-[10px] font-medium text-white">
-                <Plus className="h-2.5 w-2.5" strokeWidth={3} />
-              </span>
-            </button>
+            <LinkQrCodeButton onClick={() => setQrPromptOpen(true)} />
           )}
           <button
             type="button"
@@ -209,36 +200,15 @@ export function PodDetail({ pod }: PodDetailProps) {
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-3">
         <div className="shrink-0">
         <div className="relative mb-2 flex justify-center">
-          <div className="relative h-40 w-40 shrink-0">
-            <div className="pod-detail-hero-image absolute inset-0 border border-slate-700 bg-surface-muted">
-              {displayImageUrl ? (
-                <img
-                  src={displayImageUrl}
-                  alt={capitalizeWords(pod.plantName)}
-                  className="h-full w-full object-cover object-center"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none'
-                    const fallback = e.currentTarget.nextElementSibling
-                    if (fallback instanceof HTMLElement) fallback.classList.remove('hidden')
-                  }}
-                />
-              ) : null}
-              <div
-                className={`absolute inset-0 flex items-center justify-center ${displayImageUrl ? 'hidden' : ''}`}
-                aria-hidden
-              >
-                <Leaf className="h-16 w-16 text-slate-600" />
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setPhotoModalOpen(true)}
-              className={`absolute bottom-0 right-0 flex h-10 w-10 items-center justify-center rounded-full border border-slate-600 bg-slate-800/95 text-slate-100 shadow-lg backdrop-blur hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-accent ${qrPromptOpen ? 'z-0' : 'z-[100]'}`}
-              aria-label="Change pod photo"
-            >
-              <Camera className="h-5 w-5" />
-            </button>
-          </div>
+          <PodPhotoPicker
+            imageUrl={displayImageUrl}
+            value={pod.photoDataUrl}
+            onChange={(url) => updatePod(pod.id, { photoDataUrl: url })}
+            placeholder="leaf"
+            alt={capitalizeWords(pod.plantName)}
+            title="Pod photo"
+            cameraButtonBehindOverlay={qrPromptOpen}
+          />
           <div className="absolute top-0 right-0 -mr-4">
             {editing === 'slotNumber' ? (
               <div ref={editAreaRef} className="flex items-center gap-1.5 rounded-l-lg border border-slate-600 border-r-0 bg-slate-700 py-1.5 pl-3 pr-4 shadow-lg">
@@ -266,14 +236,6 @@ export function PodDetail({ pod }: PodDetailProps) {
             )}
           </div>
         </div>
-
-        <PhotoPickerModal
-          open={photoModalOpen}
-          onClose={() => setPhotoModalOpen(false)}
-          value={pod.photoDataUrl}
-          onChange={(url) => updatePod(pod.id, { photoDataUrl: url })}
-          title="Pod photo"
-        />
 
         <div className="mb-2 text-center">
           <h1 className="text-xl font-semibold text-slate-100">

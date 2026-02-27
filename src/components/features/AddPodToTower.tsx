@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Camera, QrCode } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
+import { BOTTOM_NAV_HEIGHT } from '@/components/ui/BottomNav'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { PhotoPickerModal } from '@/components/ui/PhotoPickerModal'
+import { LinkQrCodeButton } from '@/components/ui/LinkQrCodeButton'
+import { PodPhotoPicker } from '@/components/ui/PodPhotoPicker'
 import { Select } from '@/components/ui/Select'
 import { PlantSelect } from '@/components/ui/PlantSelect'
-import { PLANT_LIBRARY } from '@/data/plants'
+import { PLANT_LIBRARY, getPlantIconUrl } from '@/data/plants'
 import { useTowerContext } from '@/context/TowerContext'
+import { resolvePlantAssetUrl } from '@/utils/assetUrl'
 import { isQrSupported } from '@/utils/qr'
 import { QrScanPromptModal } from '@/components/features/QrScanPromptModal'
 
@@ -24,7 +27,6 @@ export function AddPodToTower() {
   const [slotNumber, setSlotNumber] = useState(1)
   const [plantedAt, setPlantedAt] = useState(Date.now())
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null)
-  const [photoModalOpen, setPhotoModalOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [scanPodId, setScanPodId] = useState<string | null>(null)
   const [qrPromptOpen, setQrPromptOpen] = useState(false)
@@ -90,16 +92,40 @@ export function AddPodToTower() {
     }
   }
 
+  const navBottom = BOTTOM_NAV_HEIGHT
   return (
-    <div className="min-h-screen pb-8">
-      <header className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-700 bg-slate-900/95 px-4 py-3 backdrop-blur">
-        <Link to={`/tower/${tower.id}`} className="p-1 text-slate-400 hover:text-slate-100">
-          <ArrowLeft className="h-6 w-6" />
-        </Link>
-        <span className="text-lg font-medium text-slate-100">Add pod</span>
+    <div
+      className="fixed inset-0 z-10 flex flex-col overflow-hidden bg-slate-900"
+      style={{ paddingBottom: `max(${navBottom}, calc(${navBottom} + env(safe-area-inset-bottom, 0px)))` }}
+    >
+      <header className="flex shrink-0 items-center justify-between gap-2 border-b border-slate-700 bg-slate-900/95 px-4 py-3 backdrop-blur">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <Link to={`/tower/${tower.id}`} className="shrink-0 p-1 text-slate-400 hover:text-slate-100">
+            <ArrowLeft className="h-6 w-6" />
+          </Link>
+          <span className="text-lg font-medium text-slate-100">Add pod</span>
+        </div>
+        {isQrSupported() && (
+          <div className="flex shrink-0 items-center gap-1">
+            <LinkQrCodeButton onClick={() => setQrPromptOpen(true)} ariaLabel="Scan QR code to link to this pod" />
+          </div>
+        )}
       </header>
 
-      <div className="space-y-6 px-4 py-6">
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="space-y-6 px-4 py-6">
+        <div className="mb-2 flex justify-center">
+          <PodPhotoPicker
+            imageUrl={photoDataUrl ?? (plant ? resolvePlantAssetUrl(getPlantIconUrl(plant)) : null)}
+            value={photoDataUrl}
+            onChange={setPhotoDataUrl}
+            placeholder="camera"
+            alt={plantName || 'Plant'}
+            title="Pod photo"
+            cameraButtonBehindOverlay={qrPromptOpen}
+          />
+        </div>
+
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-400">Plant</label>
           <PlantSelect
@@ -110,105 +136,46 @@ export function AddPodToTower() {
           />
         </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Slot</label>
-          <Select
-            value={slotNumberValid ? slotNumber : defaultSlot ?? 1}
-            onChange={(e) => setSlotNumber(parseInt(e.target.value, 10))}
-          >
-            {availableSlots.map((s) => (
-              <option key={s} value={s}>
-                Slot {s}
-              </option>
-            ))}
-          </Select>
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Planted date</label>
-          <Input
-            type="date"
-            value={dateStr}
-            onChange={(e) => setPlantedAt(new Date(e.target.value).getTime())}
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Photo (optional)</label>
-          {photoDataUrl ? (
-            <div className="relative inline-block">
-              <img
-                src={photoDataUrl}
-                alt="Pod"
-                className="h-24 w-24 rounded-lg border border-slate-600 object-cover"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute bottom-0 right-0"
-                onClick={() => setPhotoModalOpen(true)}
+        <div className="flex gap-3">
+          <div className="min-w-0 flex-1">
+            <label className="mb-1 block text-sm font-medium text-slate-400">Slot</label>
+            <div className="h-10 overflow-hidden rounded-lg border border-slate-600 bg-slate-800">
+              <Select
+                value={slotNumberValid ? slotNumber : defaultSlot ?? 1}
+                onChange={(e) => setSlotNumber(parseInt(e.target.value, 10))}
+                className="h-full w-full min-h-0 rounded-none border-0 bg-transparent"
               >
-                Change
-              </Button>
+                {availableSlots.map((s) => (
+                  <option key={s} value={s}>
+                    Slot {s}
+                  </option>
+                ))}
+              </Select>
             </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setPhotoModalOpen(true)}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-slate-600 bg-surface-muted px-4 py-3 text-slate-400 transition-colors hover:border-accent hover:text-accent"
-            >
-              <Camera className="h-5 w-5" />
-              Add photo
-            </button>
-          )}
-          <PhotoPickerModal
-            open={photoModalOpen}
-            onClose={() => setPhotoModalOpen(false)}
-            value={photoDataUrl}
-            onChange={setPhotoDataUrl}
-            title="Pod photo"
-          />
+          </div>
+          <div className="min-w-0 flex-1">
+            <label className="mb-1 block text-sm font-medium text-slate-400">Planted date</label>
+            <div className="h-10 overflow-hidden rounded-lg border border-slate-600 bg-slate-800">
+              <Input
+                type="date"
+                value={dateStr}
+                onChange={(e) => setPlantedAt(new Date(e.target.value).getTime())}
+                className="h-full w-full min-h-0 rounded-none border-0 bg-transparent py-0"
+              />
+            </div>
+          </div>
         </div>
 
-        {isQrSupported() && (
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Link QR code (optional)</label>
-            <p className="mb-2 text-xs text-slate-500">
-              Scan the QR code on the pod label to use its ID for this pod.
-            </p>
-            {scanPodId ? (
-              <div className="flex items-center justify-between gap-2 rounded-lg border border-slate-600 bg-surface-muted px-3 py-2">
-                <span className="truncate text-sm text-slate-300" title={scanPodId}>Code: {scanPodId}</span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setScanPodId(null)}
-                >
-                  Clear
-                </Button>
-              </div>
-            ) : (
-              <Button
-                type="button"
-                variant="secondary"
-                className="w-full"
-                onClick={() => setQrPromptOpen(true)}
-              >
-                <QrCode className="mr-2 h-4 w-4" />
-                Scan QR code
-              </Button>
-            )}
-          </div>
-        )}
         <QrScanPromptModal
           open={qrPromptOpen}
           onClose={() => setQrPromptOpen(false)}
           onResult={(value) => { setScanPodId(value); setQrPromptOpen(false); }}
           title="Scan pod QR code"
         />
+        </div>
+      </div>
 
+      <div className="shrink-0 bg-slate-900/95 px-4 py-3 pb-6 backdrop-blur">
         <Button
           className="w-full"
           onClick={handleSave}

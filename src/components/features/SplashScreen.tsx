@@ -8,6 +8,7 @@ export function SplashScreen() {
       </div>
       <p className="mt-6 text-xl font-medium text-slate-300">Gryns</p>
       <p className="mt-1 text-sm text-slate-500">Hydroponic Tower Tracker</p>
+      <p className="mt-1 text-xs text-slate-600">Version {__APP_VERSION__}</p>
     </div>
   )
 }

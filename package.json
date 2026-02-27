@@ -1,12 +1,14 @@
 {
   "name": "gryns",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.8.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "node scripts/write-version.js && tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "version:bump": "node scripts/bump-version.js",
+    "version:bump:patch": "node scripts/bump-version.js patch"
   },
   "dependencies": {
     "dexie": "^4.0.1",

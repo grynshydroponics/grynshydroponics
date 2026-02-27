@@ -2,15 +2,16 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { TowerControl, Leaf, Plus, Trash2 } from 'lucide-react'
 import { useTowerContext } from '@/context/TowerContext'
-import { Button } from '@/components/ui/Button'
+import { AddTowerModal, DEFAULT_SLOT_COUNT } from '@/components/features/AddTowerModal'
 import type { TowerRecord } from '@/db'
+
+const DELETE_TOWER_MESSAGE =
+  'Delete this tower? All pods in it will be removed. This cannot be undone.'
 
 interface DashboardProps {
   towers: TowerRecord[]
   podCountByTower: Record<string, number>
 }
-
-const DEFAULT_SLOT_COUNT = 7
 
 export function Dashboard({ towers, podCountByTower }: DashboardProps) {
   const { addTower, deleteTower } = useTowerContext()
@@ -27,11 +28,14 @@ export function Dashboard({ towers, podCountByTower }: DashboardProps) {
   const handleDeleteTower = (e: React.MouseEvent, tower: TowerRecord) => {
     e.preventDefault()
     e.stopPropagation()
-    const message =
-      'Delete this tower? All pods in it will be removed. This cannot be undone.'
-    if (window.confirm(message)) {
+    if (window.confirm(DELETE_TOWER_MESSAGE)) {
       deleteTower(tower.id)
     }
+  }
+
+  const handleCloseAddModal = () => {
+    setAddModalOpen(false)
+    setSlotCount(DEFAULT_SLOT_COUNT)
   }
 
   if (towers.length === 0) {
@@ -86,40 +90,13 @@ export function Dashboard({ towers, podCountByTower }: DashboardProps) {
         </button>
       </div>
 
-      {addModalOpen && (
-        <div
-          className="fixed inset-0 z-30 flex items-center justify-center bg-black/60 p-4"
-          onClick={() => setAddModalOpen(false)}
-        >
-          <div
-            className="w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-semibold text-slate-100">Add tower</h2>
-            <p className="mt-1 text-sm text-slate-400">How many pods does this tower have?</p>
-            <input
-              type="number"
-              min={1}
-              max={99}
-              value={slotCount}
-              onChange={(e) => setSlotCount(parseInt(e.target.value, 10) || DEFAULT_SLOT_COUNT)}
-              className="mt-4 w-full rounded-lg border border-slate-600 bg-slate-800 px-4 py-2.5 text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-            />
-            <div className="mt-6 flex gap-3">
-              <Button
-                variant="secondary"
-                className="flex-1"
-                onClick={() => setAddModalOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button className="flex-1" onClick={handleAddTower}>
-                Add tower
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AddTowerModal
+        open={addModalOpen}
+        slotCount={slotCount}
+        onSlotCountChange={setSlotCount}
+        onClose={handleCloseAddModal}
+        onConfirm={handleAddTower}
+      />
     </div>
   )
 }

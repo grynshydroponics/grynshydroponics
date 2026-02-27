@@ -10,6 +10,7 @@ import { resolvePlantAssetUrl } from '@/utils/assetUrl'
 import { useTowerContext } from '@/context/TowerContext'
 import type { PodRecord, GrowthStage } from '@/db'
 import { capitalizeWords } from '@/utils/capitalize'
+import { formatDuration } from '@/utils/formatDuration'
 import { isQrSupported } from '@/utils/qr'
 import { QrScanPromptModal } from '@/components/features/QrScanPromptModal'
 
@@ -76,17 +77,6 @@ function getHighlightedPlantStage(podStage: GrowthStage, plant: PlantOption | un
     harvested: 'fruiting',
   }
   return map[podStage] ?? null
-}
-
-function formatDuration(duration?: { min?: number; max?: number; unit?: string }): string {
-  if (duration?.min == null && duration?.max == null) return '—'
-  const min = duration?.min ?? duration?.max
-  const max = duration?.max ?? duration?.min
-  const u = duration?.unit ?? ''
-  const unit = u === 'week' ? 'weeks' : u === 'day' ? 'days' : u
-  if (min == null && max == null) return '—'
-  if (min === max) return `${min} ${unit}`
-  return `${min}-${max} ${unit}`
 }
 
 interface PodDetailProps {

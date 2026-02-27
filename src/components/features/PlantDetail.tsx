@@ -2,20 +2,8 @@ import { useParams, Link } from 'react-router-dom'
 import { Leaf } from 'lucide-react'
 import { PLANT_LIBRARY, getPlantIconUrl, type GrowthStageEntry } from '@/data/plants'
 import { resolvePlantAssetUrl } from '@/utils/assetUrl'
-function formatDuration(duration?: { min?: number; max?: number; unit?: string }): string {
-  if (duration?.min == null && duration?.max == null) return '—'
-  const min = duration?.min ?? duration?.max
-  const max = duration?.max ?? duration?.min
-  const u = duration?.unit ?? ''
-  const unit = u === 'week' ? 'weeks' : u === 'day' ? 'days' : u
-  if (min == null && max == null) return '—'
-  if (min === max) return `${min} ${unit}`
-  return `${min}-${max} ${unit}`
-}
-
-function formatStageName(stage: string): string {
-  return stage.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-}
+import { formatDuration } from '@/utils/formatDuration'
+import { formatStageKey } from '@/utils/plantStage'
 
 export function PlantDetail() {
   const { plantId } = useParams<{ plantId: string }>()
@@ -96,7 +84,7 @@ export function PlantDetail() {
             {plant.growth_stages.filter((s): s is GrowthStageEntry => s != null).map((stage) => (
               <li key={stage.stage} className="border-b border-slate-700 pb-3 last:border-0 last:pb-0">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="font-medium text-slate-100">{formatStageName(stage.stage)}</span>
+                  <span className="font-medium text-slate-100">{formatStageKey(stage.stage)}</span>
                   {stage.duration && (
                     <span className="text-sm text-slate-400">{formatDuration(stage.duration)}</span>
                   )}

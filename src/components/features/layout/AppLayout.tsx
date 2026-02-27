@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { BottomNav, BOTTOM_NAV_HEIGHT } from '@/components/ui/BottomNav'
-import { QrScanModal } from './QrScanModal'
+import { QrScanModal } from '@/components/features/qr/QrScanModal'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [scanModalOpen, setScanModalOpen] = useState(false)
@@ -13,3 +13,4 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+

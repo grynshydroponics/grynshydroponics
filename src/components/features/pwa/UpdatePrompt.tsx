@@ -70,7 +70,8 @@ export function UpdatePrompt() {
           Update available
         </h2>
         <p className="mt-2 text-sm text-slate-400">
-          A new version of Gryns is available. Update now to get the latest features and fixes. Your data will not be cleared.
+          A new version of Gryns is available. Update now to get the latest features and fixes.
+          Your data will not be cleared.
         </p>
         <div className="mt-6 flex gap-3">
           <Button variant="secondary" className="flex-1" onClick={handleLater}>
@@ -84,3 +85,4 @@ export function UpdatePrompt() {
     </div>
   )
 }
+

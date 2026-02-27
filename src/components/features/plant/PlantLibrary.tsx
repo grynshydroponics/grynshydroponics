@@ -2,13 +2,12 @@ import { Link } from 'react-router-dom'
 import { Leaf } from 'lucide-react'
 import { PLANT_LIBRARY, getPlantIconUrl } from '@/data/plants'
 import { resolvePlantAssetUrl } from '@/utils/assetUrl'
+
 export function PlantLibrary() {
   return (
     <div className="px-6 py-6">
       <h1 className="text-2xl font-semibold text-slate-100">Plant library</h1>
-      <p className="mt-1 text-sm text-slate-400">
-        Tap a plant to see full details.
-      </p>
+      <p className="mt-1 text-sm text-slate-400">Tap a plant to see full details.</p>
       <ul className="mt-6 grid grid-cols-2 gap-3">
         {PLANT_LIBRARY.map((plant) => {
           const iconUrl = resolvePlantAssetUrl(getPlantIconUrl(plant))
@@ -34,7 +33,10 @@ export function PlantLibrary() {
                           }
                         }}
                       />
-                      <span className="hidden h-full w-full items-center justify-center" aria-hidden>
+                      <span
+                        className="hidden h-full w-full items-center justify-center"
+                        aria-hidden
+                      >
                         <Leaf className="h-10 w-10 text-slate-500" />
                       </span>
                     </>
@@ -55,3 +57,4 @@ export function PlantLibrary() {
     </div>
   )
 }
+

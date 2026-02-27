@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { QrCode } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { isQrSupported } from '@/utils/qr'
-import { QrScanPromptModal } from '@/components/features/QrScanPromptModal'
+import { QrScanModal } from '@/components/features/qr/QrScanModal'
 
 interface Props {
   nfcPodId: string | null
@@ -53,7 +53,7 @@ export function OnboardingStep6({ nfcPodId, onNfcChange, onFinish }: Props) {
       <Button className="w-full" onClick={onFinish}>
         Go to Dashboard
       </Button>
-      <QrScanPromptModal
+      <QrScanModal
         open={qrPromptOpen}
         onClose={() => setQrPromptOpen(false)}
         onResult={(value) => { onNfcChange(value); setQrPromptOpen(false); }}

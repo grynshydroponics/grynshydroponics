@@ -20,7 +20,8 @@ const POST_INSTALL_DELAY_MS = 5000
 
 export function InstallGate({ children }: { children: React.ReactNode }) {
   const isPWA = isRunningAsPWA()
-  const skipped = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(SKIP_GATE_KEY) === '1'
+  const skipped =
+    typeof sessionStorage !== 'undefined' && sessionStorage.getItem(SKIP_GATE_KEY) === '1'
   const [showApp, setShowApp] = useState(() => isPWA || skipped)
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [installing, setInstalling] = useState(false)
@@ -146,7 +147,8 @@ export function InstallGate({ children }: { children: React.ReactNode }) {
         <h1 className="mt-6 text-2xl font-semibold text-slate-100">Gryns</h1>
         <p className="mt-2 text-slate-400">Hydroponic Tower Tracker</p>
         <p className="mt-8 max-w-sm text-slate-500">
-          Gryns is designed for your phone. Open this link on your mobile device and add it to your home screen for the best experience.
+          Gryns is designed for your phone. Open this link on your mobile device and add it to
+          your home screen for the best experience.
         </p>
         <p className="mt-4 text-sm text-slate-600">
           {typeof window !== 'undefined' && window.location.href}
@@ -171,7 +173,8 @@ export function InstallGate({ children }: { children: React.ReactNode }) {
       <h1 className="mt-6 text-2xl font-semibold text-slate-100">Gryns</h1>
       <p className="mt-2 text-slate-400">Hydroponic Tower Tracker</p>
       <p className="mt-8 max-w-sm text-slate-500">
-        Add Gryns to your home screen to track your towers and pods, scan QR codes, and use the app offline.
+        Add Gryns to your home screen to track your towers and pods, scan QR codes, and use the
+        app offline.
       </p>
       {installPrompt ? (
         <Button
@@ -184,7 +187,8 @@ export function InstallGate({ children }: { children: React.ReactNode }) {
         </Button>
       ) : (
         <div className="mt-8 rounded-xl border border-slate-600 bg-surface/50 px-4 py-3 text-sm text-slate-400">
-          In Chrome on Android, choose <strong>Add to Home screen</strong> or <strong>Install app</strong>.
+          In Chrome on Android, choose <strong>Add to Home screen</strong> or{' '}
+          <strong>Install app</strong>.
         </div>
       )}
       <button
@@ -197,3 +201,4 @@ export function InstallGate({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+

@@ -13,7 +13,9 @@ export function PlantDetail() {
     return (
       <div className="px-4 py-6">
         <p className="text-slate-500">Plant not found.</p>
-        <Link to="/plants" className="mt-2 inline-block text-accent">Back to library</Link>
+        <Link to="/plants" className="mt-2 inline-block text-accent">
+          Back to library
+        </Link>
       </div>
     )
   }
@@ -23,7 +25,10 @@ export function PlantDetail() {
 
   return (
     <div className="px-4 py-6">
-      <Link to="/plants" className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-100">
+      <Link
+        to="/plants"
+        className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-100"
+      >
         ← Library
       </Link>
 
@@ -55,23 +60,28 @@ export function PlantDetail() {
       </div>
 
       {plant.description && (
-        <p className="mt-2 text-center text-sm leading-relaxed text-slate-300">{plant.description}</p>
+        <p className="mt-2 text-center text-sm leading-relaxed text-slate-300">
+          {plant.description}
+        </p>
       )}
 
       <div className="mt-4 grid grid-cols-2 gap-3">
         {plant.harvest?.duration && (
           <div className="rounded-xl border border-slate-700 bg-surface p-3">
             <p className="text-xs uppercase tracking-wider text-slate-500">Harvest</p>
-            <p className="mt-0.5 text-sm text-slate-100">{formatDuration(plant.harvest.duration)}</p>
+            <p className="mt-0.5 text-sm text-slate-100">
+              {formatDuration(plant.harvest.duration)}
+            </p>
           </div>
         )}
         {plant.yield && (
           <div className="rounded-xl border border-slate-700 bg-surface p-3">
             <p className="text-xs uppercase tracking-wider text-slate-500">Yield</p>
             <p className="mt-0.5 text-sm text-slate-100">
-              {plant.yield.label ?? (plant.yield.value != null && plant.yield.unit != null
-                ? `${plant.yield.value} ${plant.yield.unit}`
-                : plant.yield.unit ?? '—')}
+              {plant.yield.label ??
+                (plant.yield.value != null && plant.yield.unit != null
+                  ? `${plant.yield.value} ${plant.yield.unit}`
+                  : plant.yield.unit ?? '—')}
             </p>
           </div>
         )}
@@ -79,33 +89,50 @@ export function PlantDetail() {
 
       {plant.growth_stages?.filter((s): s is GrowthStageEntry => s != null).length ? (
         <div className="mt-4 rounded-xl border border-slate-700 bg-surface p-4">
-          <p className="mb-3 text-xs uppercase tracking-wider text-slate-500">Growth stages</p>
+          <p className="mb-3 text-xs uppercase tracking-wider text-slate-500">
+            Growth stages
+          </p>
           <ul className="space-y-3">
-            {plant.growth_stages.filter((s): s is GrowthStageEntry => s != null).map((stage) => (
-              <li key={stage.stage} className="border-b border-slate-700 pb-3 last:border-0 last:pb-0">
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="font-medium text-slate-100">{formatStageKey(stage.stage)}</span>
-                  {stage.duration && (
-                    <span className="text-sm text-slate-400">{formatDuration(stage.duration)}</span>
+            {plant.growth_stages
+              .filter((s): s is GrowthStageEntry => s != null)
+              .map((stage) => (
+                <li
+                  key={stage.stage}
+                  className="border-b border-slate-700 pb-3 last:border-0 last:pb-0"
+                >
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <span className="font-medium text-slate-100">
+                      {formatStageKey(stage.stage)}
+                    </span>
+                    {stage.duration && (
+                      <span className="text-sm text-slate-400">
+                        {formatDuration(stage.duration)}
+                      </span>
+                    )}
+                  </div>
+                  {stage.description && (
+                    <p className="mt-1 text-sm text-slate-400">{stage.description}</p>
                   )}
-                </div>
-                {stage.description && (
-                  <p className="mt-1 text-sm text-slate-400">{stage.description}</p>
-                )}
-              </li>
-            ))}
+                </li>
+              ))}
           </ul>
         </div>
       ) : null}
 
-      {plant.hardinessZone && (plant.hardinessZone.min != null || plant.hardinessZone.max != null) && (
-        <div className="mt-4 rounded-xl border border-slate-700 bg-surface p-3">
-          <p className="text-xs uppercase tracking-wider text-slate-500">Hardiness zone</p>
-          <p className="mt-0.5 text-sm text-slate-100">
-            {[plant.hardinessZone.min, plant.hardinessZone.max].filter((n) => n != null).join(' – ')}
-          </p>
-        </div>
-      )}
+      {plant.hardinessZone &&
+        (plant.hardinessZone.min != null || plant.hardinessZone.max != null) && (
+          <div className="mt-4 rounded-xl border border-slate-700 bg-surface p-3">
+            <p className="text-xs uppercase tracking-wider text-slate-500">
+              Hardiness zone
+            </p>
+            <p className="mt-0.5 text-sm text-slate-100">
+              {[plant.hardinessZone.min, plant.hardinessZone.max]
+                .filter((n) => n != null)
+                .join(' – ')}
+            </p>
+          </div>
+        )}
     </div>
   )
 }
+

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { TowerControl, Leaf, Plus, Trash2 } from 'lucide-react'
 import { useTowerContext } from '@/context/TowerContext'
-import { AddTowerModal, DEFAULT_SLOT_COUNT } from '@/components/features/AddTowerModal'
+import { AddTowerModal, DEFAULT_SLOT_COUNT } from '@/components/features/tower/AddTowerModal'
 import type { TowerRecord } from '@/db'
 
 const DELETE_TOWER_MESSAGE =
@@ -42,7 +42,9 @@ export function Dashboard({ towers, podCountByTower }: DashboardProps) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center px-4 text-center">
         <Leaf className="h-16 w-16 text-slate-600" />
-        <p className="mt-4 text-slate-400">No towers yet. Complete onboarding to add your first tower.</p>
+        <p className="mt-4 text-slate-400">
+          No towers yet. Complete onboarding to add your first tower.
+        </p>
       </div>
     )
   }
@@ -56,10 +58,7 @@ export function Dashboard({ towers, podCountByTower }: DashboardProps) {
             key={tower.id}
             className="flex items-center gap-2 rounded-xl border border-slate-700 bg-surface p-4 shadow transition-colors hover:border-accent/50 hover:bg-surface-muted"
           >
-            <Link
-              to={`/tower/${tower.id}`}
-              className="flex min-w-0 flex-1 items-center gap-4"
-            >
+            <Link to={`/tower/${tower.id}`} className="flex min-w-0 flex-1 items-center gap-4">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-surface-muted">
                 <TowerControl className="h-7 w-7 text-accent" />
               </div>
@@ -100,3 +99,4 @@ export function Dashboard({ towers, podCountByTower }: DashboardProps) {
     </div>
   )
 }
+

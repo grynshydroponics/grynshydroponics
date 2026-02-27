@@ -12,9 +12,16 @@ import type { PodRecord, GrowthStage } from '@/db'
 import { capitalizeWords } from '@/utils/capitalize'
 import { formatDuration } from '@/utils/formatDuration'
 import { isQrSupported } from '@/utils/qr'
-import { QrScanPromptModal } from '@/components/features/QrScanPromptModal'
+import { QrScanModal } from '@/components/features/qr/QrScanModal'
 
-const STAGE_ORDER: GrowthStage[] = ['germination', 'sprouted', 'growing', 'harvest_ready', 'fruiting', 'harvested']
+const STAGE_ORDER: GrowthStage[] = [
+  'germination',
+  'sprouted',
+  'growing',
+  'harvest_ready',
+  'fruiting',
+  'harvested',
+]
 
 function isLastPlantStage(stageKey: string | null, plant: PlantOption | undefined): boolean {
   if (!stageKey || !plant?.growth_stages) return false
@@ -34,16 +41,17 @@ function getAdvanceLabelForPlantStage(
 ): string | null {
   if (!nextPodStage || !currentPlantStage) return null
   const hasStage = (key: string) => plant?.growth_stages?.some((s) => s?.stage === key) ?? false
-  if (nextPodStage === 'harvested' && isLastPlantStage(currentPlantStage, plant)) return 'Time to Harvest'
+  if (nextPodStage === 'harvested' && isLastPlantStage(currentPlantStage, plant))
+    return 'Time to Harvest'
   switch (currentPlantStage) {
     case 'germination':
-      return "It sprouted!"
+      return 'It sprouted!'
     case 'seedling':
-      return "It has green leaves!"
+      return 'It has green leaves!'
     case 'vegetative':
       return hasStage('flowering') ? "It's flowering!" : 'Time to Harvest'
     case 'flowering':
-      return hasStage('fruiting') ? "Fruit set!" : 'Time to Harvest'
+      return hasStage('fruiting') ? 'Fruit set!' : 'Time to Harvest'
     case 'fruiting':
       return 'Time to Harvest'
     default:
@@ -62,7 +70,10 @@ function nextStage(current: GrowthStage, plant: PlantOption | undefined): Growth
 }
 
 /** Which plant stage to highlight. When harvested, use the plant's last growth stage (e.g. vegetative for basil). */
-function getHighlightedPlantStage(podStage: GrowthStage, plant: PlantOption | undefined): string | null {
+function getHighlightedPlantStage(
+  podStage: GrowthStage,
+  plant: PlantOption | undefined
+): string | null {
   if (podStage === 'harvested' && plant?.growth_stages) {
     const stages = plant.growth_stages.filter((s): s is NonNullable<typeof s> => s != null)
     const last = stages[stages.length - 1]
@@ -177,7 +188,7 @@ export function PodDetail({ pod }: PodDetailProps) {
         </div>
       </header>
 
-      <QrScanPromptModal
+      <QrScanModal
         open={qrPromptOpen}
         onClose={() => setQrPromptOpen(false)}
         onResult={(value) => {
@@ -189,118 +200,145 @@ export function PodDetail({ pod }: PodDetailProps) {
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-3">
         <div className="shrink-0">
-        <div className="relative mb-2 flex justify-center">
-          <PodPhotoPicker
-            imageUrl={displayImageUrl}
-            value={pod.photoDataUrl}
-            onChange={(url) => updatePod(pod.id, { photoDataUrl: url })}
-            placeholder="leaf"
-            alt={capitalizeWords(pod.plantName)}
-            title="Pod photo"
-            cameraButtonBehindOverlay={qrPromptOpen}
-          />
-          <div className="absolute top-0 right-0 -mr-4">
-            {editing === 'slotNumber' ? (
-              <div ref={editAreaRef} className="flex items-center gap-1.5 rounded-l-lg border border-slate-600 border-r-0 bg-slate-700 py-1.5 pl-3 pr-4 shadow-lg">
-                <input
-                  type="number"
-                  min={1}
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
-                  className="w-12 rounded border border-slate-600 bg-slate-800 px-2 py-1 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-                  autoFocus
-                  aria-label="Slot"
-                />
-                <Button size="sm" className="text-xs" onClick={saveEdit} disabled={saving}>Save</Button>
-                <Button variant="ghost" size="sm" className="text-xs" onClick={cancelEdit}>Cancel</Button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => startEdit(String(pod.slotNumber))}
-                className="rounded-l-lg bg-slate-700 py-1.5 pl-3 pr-4 text-sm font-medium text-slate-200 hover:bg-slate-600 hover:text-slate-100"
-              >
-                Slot {pod.slotNumber}
-              </button>
-            )}
+          <div className="relative mb-2 flex justify-center">
+            <PodPhotoPicker
+              imageUrl={displayImageUrl}
+              value={pod.photoDataUrl}
+              onChange={(url) => updatePod(pod.id, { photoDataUrl: url })}
+              placeholder="leaf"
+              alt={capitalizeWords(pod.plantName)}
+              title="Pod photo"
+              cameraButtonBehindOverlay={qrPromptOpen}
+            />
+            <div className="absolute top-0 right-0 -mr-4">
+              {editing === 'slotNumber' ? (
+                <div
+                  ref={editAreaRef}
+                  className="flex items-center gap-1.5 rounded-l-lg border border-slate-600 border-r-0 bg-slate-700 py-1.5 pl-3 pr-4 shadow-lg"
+                >
+                  <input
+                    type="number"
+                    min={1}
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
+                    className="w-12 rounded border border-slate-600 bg-slate-800 px-2 py-1 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                    autoFocus
+                    aria-label="Slot"
+                  />
+                  <Button size="sm" className="text-xs" onClick={saveEdit} disabled={saving}>
+                    Save
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs"
+                    onClick={cancelEdit}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => startEdit(String(pod.slotNumber))}
+                  className="rounded-l-lg bg-slate-700 py-1.5 pl-3 pr-4 text-sm font-medium text-slate-200 hover:bg-slate-600 hover:text-slate-100"
+                >
+                  Slot {pod.slotNumber}
+                </button>
+              )}
+            </div>
           </div>
-        </div>
 
-        <div className="mb-2 text-center">
-          <h1 className="text-xl font-semibold text-slate-100">
-            {capitalizeWords(pod.plantName)}
-          </h1>
-          {plant?.species && (
-            <p className="mt-1 text-sm italic text-slate-400">{plant.species}</p>
-          )}
-          {plant?.description && (
-            <p className="mt-1.5 max-w-md mx-auto px-4 py-1 text-sm text-slate-300 leading-relaxed">
-              {plant.description}
-            </p>
-          )}
-
-          <div className="mt-2 flex flex-wrap justify-center gap-4 text-center">
-            {plant?.harvest && (
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-slate-500">Harvest</p>
-                <p className="mt-0.5 text-xs text-slate-300">
-                  {formatDuration(plant.harvest.duration)}
-                </p>
-              </div>
+          <div className="mb-2 text-center">
+            <h1 className="text-xl font-semibold text-slate-100">
+              {capitalizeWords(pod.plantName)}
+            </h1>
+            {plant?.species && (
+              <p className="mt-1 text-sm italic text-slate-400">{plant.species}</p>
             )}
-            {plant?.yield && (
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-slate-500">Yield</p>
-                <p className="mt-0.5 text-xs text-slate-300">
-                  {plant.yield.label ?? (plant.yield.value != null && plant.yield.unit != null
-                    ? `${plant.yield.value} ${plant.yield.unit}`
-                    : plant.yield.unit ?? '—')}
-                </p>
-              </div>
-            )}
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-slate-500">Planted</p>
-              <p className="mt-0.5 text-xs text-slate-300">
-                {new Date(pod.plantedAt).toLocaleDateString()}
+            {plant?.description && (
+              <p className="mt-1.5 mx-auto max-w-md px-4 py-1 text-sm leading-relaxed text-slate-300">
+                {plant.description}
               </p>
+            )}
+
+            <div className="mt-2 flex flex-wrap justify-center gap-4 text-center">
+              {plant?.harvest && (
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-slate-500">Harvest</p>
+                  <p className="mt-0.5 text-xs text-slate-300">
+                    {formatDuration(plant.harvest.duration)}
+                  </p>
+                </div>
+              )}
+              {plant?.yield && (
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-slate-500">Yield</p>
+                  <p className="mt-0.5 text-xs text-slate-300">
+                    {plant.yield.label ??
+                      (plant.yield.value != null && plant.yield.unit != null
+                        ? `${plant.yield.value} ${plant.yield.unit}`
+                        : plant.yield.unit ?? '—')}
+                  </p>
+                </div>
+              )}
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-slate-500">Planted</p>
+                <p className="mt-0.5 text-xs text-slate-300">
+                  {new Date(pod.plantedAt).toLocaleDateString()}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-        </div>
 
         <div className="mt-2 space-y-1">
-          <p className="mb-0.5 text-[10px] uppercase tracking-wider text-slate-500">Growth stages</p>
-          {(plant?.growth_stages?.filter((s): s is NonNullable<typeof s> => s != null) ?? []).map((entry) => {
-            const isCurrent = getHighlightedPlantStage(pod.growthStage, plant) === entry.stage
-            const durationStr = entry.duration ? formatDuration(entry.duration) : null
-            return (
-              <div
-                key={entry.stage}
-                className={`rounded-lg border px-2 py-1 ${
-                  isCurrent
-                    ? 'border-accent bg-accent/10'
-                    : 'border-slate-700 bg-surface'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <p className={`text-xs capitalize ${isCurrent ? 'font-medium text-accent' : 'text-slate-100'}`}>
-                    {entry.stage.replace(/_/g, ' ')}
-                  </p>
-                  {durationStr ? (
-                    <p className={`text-[11px] shrink-0 ${isCurrent ? 'text-accent/90' : 'text-slate-400'}`}>
-                      {durationStr}
+          <p className="mb-0.5 text-[10px] uppercase tracking-wider text-slate-500">
+            Growth stages
+          </p>
+          {(plant?.growth_stages?.filter((s): s is NonNullable<typeof s> => s != null) ?? []).map(
+            (entry) => {
+              const isCurrent = getHighlightedPlantStage(pod.growthStage, plant) === entry.stage
+              const durationStr = entry.duration ? formatDuration(entry.duration) : null
+              return (
+                <div
+                  key={entry.stage}
+                  className={`rounded-lg border px-2 py-1 ${
+                    isCurrent ? 'border-accent bg-accent/10' : 'border-slate-700 bg-surface'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <p
+                      className={`text-xs capitalize ${
+                        isCurrent ? 'font-medium text-accent' : 'text-slate-100'
+                      }`}
+                    >
+                      {entry.stage.replace(/_/g, ' ')}
                     </p>
-                  ) : null}
+                    {durationStr ? (
+                      <p
+                        className={`text-[11px] shrink-0 ${
+                          isCurrent ? 'text-accent/90' : 'text-slate-400'
+                        }`}
+                      >
+                        {durationStr}
+                      </p>
+                    ) : null}
+                  </div>
+                  {entry.description && (
+                    <p
+                      className={`mt-0.5 text-[11px] leading-snug ${
+                        isCurrent ? 'text-slate-200' : 'text-slate-300'
+                      }`}
+                    >
+                      {entry.description}
+                    </p>
+                  )}
                 </div>
-                {entry.description && (
-                  <p className={`mt-0.5 text-[11px] leading-snug ${isCurrent ? 'text-slate-200' : 'text-slate-300'}`}>
-                    {entry.description}
-                  </p>
-                )}
-              </div>
-            )
-          })}
+              )
+            }
+          )}
         </div>
       </div>
 
@@ -313,10 +351,7 @@ export function PodDetail({ pod }: PodDetailProps) {
         </div>
       ) : advanceLabel && next ? (
         <div className="shrink-0 bg-slate-900/95 px-4 py-3 pb-6 backdrop-blur">
-          <Button
-            className="w-full"
-            onClick={() => updatePodStage(pod.id, next)}
-          >
+          <Button className="w-full" onClick={() => updatePodStage(pod.id, next)}>
             {advanceLabel}
           </Button>
         </div>
@@ -324,3 +359,4 @@ export function PodDetail({ pod }: PodDetailProps) {
     </div>
   )
 }
+

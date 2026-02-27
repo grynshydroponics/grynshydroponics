@@ -11,6 +11,7 @@ import { PlantLibrary } from '@/components/features/PlantLibrary'
 import { PlantDetail } from '@/components/features/PlantDetail'
 import { OnboardingFlow } from '@/components/features/onboarding/OnboardingFlow'
 import { InstallGate } from '@/components/features/InstallGate'
+import { UpdatePrompt } from '@/components/features/UpdatePrompt'
 
 const SPLASH_DURATION_MS = 5000
 
@@ -122,6 +123,7 @@ function PodRoute() {
 export default function App() {
   return (
     <InstallGate>
+      <UpdatePrompt />
       <AppRoutes />
     </InstallGate>
   )

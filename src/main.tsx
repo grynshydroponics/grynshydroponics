@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { TowerProvider } from '@/context/TowerContext'
 import App from './App'
 import './index.css'
+import './pwaRegistration'
 
 // With relative base (./), derive basename from current path so routing works on GitHub Pages.
 function getBasename(): string {

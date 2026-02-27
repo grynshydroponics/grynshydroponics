@@ -175,7 +175,7 @@ export function QrScanModal({ open, onClose, onResult, title }: QrScanModalProps
               </p>
               <div
                 id={SCANNER_ELEMENT_ID}
-                className="mt-4 min-h-[180px] w-full overflow-hidden rounded-lg bg-black"
+                className="mt-4 mx-auto w-full max-w-xs overflow-hidden rounded-lg bg-black"
               />
             </>
           ) : status === 'not_found' ? (
